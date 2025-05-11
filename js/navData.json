@@ -1,0 +1,66 @@
+{
+  "navbar": {
+    "menuItems": [
+      {
+        "id": "home",
+        "name": "Home",
+        "link": "index.html",
+        "active": true
+      },
+      {
+        "id": "system-design",
+        "name": "System Design",
+        "link": "system-design.html",
+        "active": false,
+        "subMenu": [
+          {
+            "id": "sd-basics",
+            "name": "Basics",
+            "link": "system-design-basics.html"
+          },
+          {
+            "id": "sd-scalability",
+            "name": "Scalability",
+            "link": "system-design-scalability.html"
+          }
+        ]
+      },
+      {
+        "id": "dsa",
+        "name": "DSA",
+        "link": "dsa.html",
+        "active": false,
+        "subMenu": [
+          {
+            "id": "dsa-arrays",
+            "name": "Arrays",
+            "link": "dsa-arrays.html"
+          },
+          {
+            "id": "dsa-linked-lists",
+            "name": "Linked Lists",
+            "link": "dsa-linked-lists.html"
+          }
+        ]
+      },
+      {
+        "id": "networks",
+        "name": "Computer Networks",
+        "link": "networks.html",
+        "active": false,
+        "subMenu": [
+          {
+            "id": "net-basics",
+            "name": "Network Fundamentals",
+            "link": "network-fundamentals.html"
+          },
+          {
+            "id": "net-protocols",
+            "name": "Protocols",
+            "link": "network-protocols.html"
+          }
+        ]
+      }
+    ]
+  }
+}

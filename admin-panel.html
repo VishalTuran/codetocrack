@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Code to Crack</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- TinyMCE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.6.0/tinymce.min.js"></script>
+
+    <!-- Custom CSS -->
+    <style>
+        /* Main Sidebar Styles */
+        .sidebar {
+            min-height: 100vh;
+            background-color: #203656;
+            padding: 20px 0;
+        }
+        .sidebar .nav-link {
+            color: #FFF;
+            padding: 8px 16px;
+            margin: 4px 0;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .sidebar .nav-link.active {
+            background-color: #FE4F70;
+            border-radius: 25px;
+            background: linear-gradient(to right, #FE4F70 0%, #FFA387 100%);
+        }
+
+        /* Dashboard Styles */
+        .stat-card {
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .dashboard h2 {
+            color: #203656;
+            font-weight: bold;
+        }
+
+        /* Button Styles */
+        .btn-custom {
+            background: linear-gradient(to right, #FE4F70 0%, #FFA387 100%);
+            border: none;
+            color: white;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(to right, #e74562 0%, #ff8c6a 100%);
+            color: white;
+        }
+
+        /* Table Styles */
+        .table th {
+            color: #203656;
+            font-weight: bold;
+        }
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .content-preview {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Section Visibility */
+        .section.d-none {
+            display: none !important;
+        }
+
+        /* Modern Editor Styles */
+        .tox-tinymce {
+            border-radius: 0.25rem;
+            border-color: #dee2e6 !important;
+        }
+
+        /* Post Editor Title Input */
+        #post-title {
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        #post-title:focus {
+            box-shadow: none;
+        }
+
+        /* Tags */
+        #tags-container {
+            min-height: 40px;
+        }
+        #tags-container .badge {
+            padding: 0.5rem 0.7rem;
+            font-weight: normal;
+        }
+        #tags-input {
+            min-width: 120px;
+            outline: none;
+        }
+
+        /* Word Count */
+        #word-count-display {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        /* Image Preview */
+        #image-preview {
+            background-size: cover;
+            background-position: center;
+            transition: all 0.3s ease;
+        }
+        #image-placeholder {
+            transition: all 0.3s ease;
+        }
+
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Subcategories */
+        .subcategory-item {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                min-height: auto;
+            }
+            .col-lg-8.border-end {
+                border-right: none !important;
+                border-bottom: 1px solid #dee2e6;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="position-sticky">
+                <div class="text-white p-3">
+                    <h4 class="text-center">Code to Crack</h4>
+                    <p class="text-center mb-0">Admin Panel</p>
+                </div>
+                <ul class="nav nav-pills flex-column mb-auto px-3">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="showSection('posts')">
+                            <i class="fas fa-newspaper me-2"></i>
+                            Posts
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="showSection('new-post')">
+                            <i class="fas fa-edit me-2"></i>
+                            New Post
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="showSection('categories')">
+                            <i class="fas fa-tags me-2"></i>
+                            Categories
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="showSection('comments')">
+                            <i class="fas fa-comments me-2"></i>
+                            Comments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="showSection('newsletter')">
+                            <i class="fas fa-envelope me-2"></i>
+                            Newsletter
+                        </a>
+                    </li>
+                </ul>
+                <hr>
+                <div class="p-3">
+                    <a href="index.html" class="btn btn-outline-light btn-sm w-100">
+                        <i class="fas fa-home me-2"></i>
+                        Back to Site
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2>Dashboard</h2>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh-dashboard">
+                                <i class="fas fa-sync-alt me-1"></i> Refresh
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary mb-3 stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-newspaper fa-2x me-3"></i>
+                                    <div>
+                                        <h5 class="card-title mb-0">Total Posts</h5>
+                                        <h2 class="mb-0" id="total-posts">0</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success mb-3 stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-eye fa-2x me-3"></i>
+                                    <div>
+                                        <h5 class="card-title mb-0">Total Views</h5>
+                                        <h2 class="mb-0" id="total-views">0</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info mb-3 stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-users fa-2x me-3"></i>
+                                    <div>
+                                        <h5 class="card-title mb-0">Subscribers</h5>
+                                        <h2 class="mb-0" id="total-subscribers">0</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning mb-3 stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock fa-2x me-3"></i>
+                                    <div>
+                                        <h5 class="card-title mb-0">Pending Comments</h5>
+                                        <h2 class="mb-0" id="pending-comments">0</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Recent Activity</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                            <th>Details</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="recent-activity">
+                                        <!-- Activity will be loaded here -->
+                                        <tr>
+                                            <td colspan="3" class="text-center">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts Section -->
+            <div id="posts" class="section d-none">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2>Posts</h2>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="refresh-posts">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                        <a href="#" onclick="showSection('new-post')" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>New Post
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Views</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody id="posts-table-body">
+                                <!-- Posts will be loaded here -->
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Post Section (Modern Editor) -->
+            <div id="new-post" class="section d-none">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <h2 id="header-title">Create New Post</h2>
+                        <span class="badge bg-secondary ms-2" id="post-status-badge">Draft</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary" id="preview-btn">
+                            <i class="fas fa-eye me-1"></i> Preview
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="save-draft-btn">
+                            <i class="fas fa-save me-1"></i> Save Draft
+                        </button>
+                        <button type="button" class="btn btn-outline-info" id="init-editor-btn">
+                            <i class="fas fa-sync-alt me-1"></i> Init Editor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body p-0">
+                        <form id="new-post-form">
+                            <div class="row g-0">
+                                <!-- Left side: Content editor -->
+                                <div class="col-lg-8 border-end">
+                                    <div class="p-4">
+                                        <input type="text" class="form-control form-control-lg border-0 px-0 mb-4 fw-bold"
+                                               id="post-title" placeholder="Post Title" style="font-size: 1.75rem;">
+
+                                        <textarea id="post-content" class="form-control"></textarea>
+
+                                        <div class="text-muted mt-2 text-end small" id="word-count-display">0 words · 0 min read</div>
+                                    </div>
+                                </div>
+
+                                <!-- Right side: Settings sidebar -->
+                                <div class="col-lg-4 bg-light">
+                                    <div class="p-4">
+                                        <!-- Publish Settings -->
+                                        <div class="mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">Publish</h5>
+                                            <div class="mb-3">
+                                                <label for="post-status" class="form-label">Status</label>
+                                                <select class="form-control form-select" id="post-status">
+                                                    <option value="draft">Draft</option>
+                                                    <option value="published">Published</option>
+                                                    <option value="scheduled">Scheduled</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3" id="scheduled-section" style="display: none;">
+                                                <label for="schedule-date" class="form-label">Schedule Date</label>
+                                                <input type="datetime-local" class="form-control" id="schedule-date">
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="post-featured">
+                                                <label class="form-check-label" for="post-featured">Featured Post</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="post-sticky">
+                                                <label class="form-check-label" for="post-sticky">Stick to Top</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Categories -->
+                                        <div class="mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">
+                                                Categories
+                                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="refresh-categories" style="padding: 0.25rem 0.5rem; line-height: 1;">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </h5>
+                                            <div class="mb-3">
+                                                <label for="post-category" class="form-label">Category</label>
+                                                <select class="form-control form-select" id="post-category" required>
+                                                    <option value="">Select Category</option>
+                                                    <!-- Categories will be loaded here -->
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="post-subcategory" class="form-label">Subcategory</label>
+                                                <select class="form-control form-select" id="post-subcategory" disabled>
+                                                    <option value="">Select Subcategory</option>
+                                                    <!-- Subcategories will be loaded here -->
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Featured Image -->
+                                        <div class="mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">Featured Image</h5>
+                                            <div id="image-preview" class="mb-3 bg-white rounded border text-center p-3" style="height: 180px; background-size: cover; background-position: center; position: relative;">
+                                                <div class="h-100 d-flex flex-column align-items-center justify-content-center" id="image-placeholder">
+                                                    <i class="fas fa-image fs-1 text-muted mb-2"></i>
+                                                    <span class="text-muted">Add featured image</span>
+                                                </div>
+                                            </div>
+                                            <input type="file" class="form-control" id="post-image" accept="image/*">
+                                        </div>
+
+                                        <!-- Tags -->
+                                        <div class="mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">Tags</h5>
+                                            <div id="tags-container" class="border rounded bg-white p-2 mb-2 d-flex flex-wrap gap-1">
+                                                <input type="text" class="border-0 flex-grow-1 p-1" id="tags-input" placeholder="Add tags...">
+                                            </div>
+                                            <input type="hidden" id="post-tags">
+                                            <small class="text-muted">Press Enter or comma to add a tag</small>
+                                        </div>
+
+                                        <!-- Excerpt -->
+                                        <div class="mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">Excerpt</h5>
+                                            <div class="mb-3">
+                                                <textarea class="form-control" id="post-excerpt" rows="3" placeholder="Write a short excerpt"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Author -->
+                                        <div class="mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">Author</h5>
+                                            <div class="mb-3">
+                                                <label for="post-author" class="form-label">Author Name</label>
+                                                <input type="text" class="form-control" id="post-author" value="Katen Doe" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-custom">Publish Post</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div id="categories" class="section d-none">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2>Categories</h2>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="refresh-categories-list">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                            <i class="fas fa-plus me-2"></i>Add New Category
+                        </button>
+                    </div>
+                </div>
+
+                <div id="categories-list" class="row">
+                    <!-- Categories will be loaded here -->
+                    <div class="col-12 text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div id="comments" class="section d-none">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2>Comments</h2>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh-comments">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Author</th>
+                                    <th>Post</th>
+                                    <th>Comment</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody id="comments-table-body">
+                                <!-- Comments will be loaded here -->
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Newsletter Section -->
+            <div id="newsletter" class="section d-none">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2>Newsletter Subscribers</h2>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh-subscribers">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Subscribe Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody id="newsletter-table-body">
+                                <!-- Subscribers will be loaded here -->
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="category-form">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="category-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="category-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category-slug" class="form-label">Slug</label>
+                        <input type="text" class="form-control" id="category-slug" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="category-description" rows="3"></textarea>
+                    </div>
+                    <!-- Subcategories will be added here by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-custom">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner (Used for global operations) -->
+<div class="spinner-overlay" id="loading-spinner" style="display: none;">
+    <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Navigation function (minimal version, will be enhanced by admin-panel.js) -->
+<script>
+    // Basic navigation function that will be enhanced by the JavaScript module
+    function showSection(sectionId) {
+        console.log(`Navigating to section: ${sectionId}`);
+
+        // Hide all sections
+        document.querySelectorAll('.section').forEach(section => {
+            section.classList.add('d-none');
+        });
+
+        // Show the selected section
+        const selectedSection = document.getElementById(sectionId);
+        if (selectedSection) {
+            selectedSection.classList.remove('d-none');
+
+            // Update the active nav link
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            const activeLink = document.querySelector(`.sidebar .nav-link[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+    }
+
+    // Add reload functionality to refresh buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dashboard refresh
+        document.getElementById('refresh-dashboard')?.addEventListener('click', function() {
+            if (typeof window.loadDashboardStats === 'function') {
+                window.loadDashboardStats();
+            }
+        });
+
+        // Posts refresh
+        document.getElementById('refresh-posts')?.addEventListener('click', function() {
+            if (typeof window.loadPosts === 'function') {
+                window.loadPosts();
+            }
+        });
+
+        // Categories refresh
+        document.getElementById('refresh-categories')?.addEventListener('click', function() {
+            if (typeof window.loadCategoriesDropdown === 'function') {
+                window.loadCategoriesDropdown();
+            }
+        });
+
+        // Categories list refresh
+        document.getElementById('refresh-categories-list')?.addEventListener('click', function() {
+            if (typeof window.loadCategories === 'function') {
+                window.loadCategories();
+            }
+        });
+
+        // Comments refresh
+        document.getElementById('refresh-comments')?.addEventListener('click', function() {
+            if (typeof window.loadComments === 'function') {
+                window.loadComments();
+            }
+        });
+
+        // Subscribers refresh
+        document.getElementById('refresh-subscribers')?.addEventListener('click', function() {
+            if (typeof window.loadSubscribers === 'function') {
+                window.loadSubscribers();
+            }
+        });
+
+        // Editor initialization button
+        document.getElementById('init-editor-btn')?.addEventListener('click', function() {
+            if (typeof window.initializeEditor === 'function') {
+                window.initializeEditor();
+            }
+        });
+    });
+</script>
+
+<!-- Application Scripts -->
+<script type="module" src="js/firebase-integration.js"></script>
+<script type="module" src="js/admin-panel.js"></script>
+
+</body>
+</html>

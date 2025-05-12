@@ -1,20 +1,334 @@
 // Immediately-invoked function expression to avoid variable collisions
 (async function() {
-    // Wait for DOM to be ready
-    document.addEventListener('DOMContentLoaded', function() {
-        // Remove any existing event listeners by cloning and replacing the form
-        const originalForm = document.getElementById('category-form');
-        if (originalForm) {
-            const newForm = originalForm.cloneNode(true);
-            originalForm.parentNode.replaceChild(newForm, originalForm);
+    // ===================================================
+    // UTILITY FUNCTIONS
+    // ===================================================
 
-            // Now initialize our form
-            initializeCategoryForm(newForm);
+    // Generate slug from text
+    function slugify(text) {
+        return text.toString().toLowerCase()
+            .replace(/\s+/g, '-')        // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+            .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+            .replace(/^-+/, '')          // Trim - from start of text
+            .replace(/-+$/, '');         // Trim - from end of text
+    }
+
+    // Show notification
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+        notification.style.zIndex = '9999';
+        notification.style.maxWidth = '400px';
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div>${message}</div>
+                <button type="button" class="btn-close ms-2" aria-label="Close"></button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Add event listener to close button
+        notification.querySelector('.btn-close').addEventListener('click', () => {
+            notification.remove();
+        });
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    // ===================================================
+    // NEW POST FORM CATEGORY FUNCTIONS
+    // ===================================================
+
+    // Load categories for the New Post form
+    async function loadCategoriesForNewPost() {
+        console.log("Loading categories for New Post form");
+
+        const categorySelect = document.getElementById('post-category');
+        if (!categorySelect) {
+            console.error("Category select element not found");
+            return;
         }
 
-        // Initialize subcategory functionality
-        initializeSubcategoryUI();
-    });
+        try {
+            // Show loading state
+            categorySelect.innerHTML = '<option value="">Loading categories...</option>';
+            categorySelect.disabled = true;
+
+            // Import Firebase integration dynamically
+            const { CategoryManager } = await import('./firebase-integration.js');
+
+            if (!CategoryManager) {
+                throw new Error('CategoryManager is not available');
+            }
+
+            // Get categories from Firebase
+            const categories = await CategoryManager.getCategories();
+            console.log("Categories loaded:", categories ? categories.length : 0);
+
+            // Reset dropdown
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+
+            // Populate dropdown
+            if (categories && categories.length > 0) {
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.slug;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            } else {
+                // If no categories exist, add a default option
+                const option = document.createElement('option');
+                option.value = "uncategorized";
+                option.textContent = "Uncategorized";
+                categorySelect.appendChild(option);
+            }
+
+            // Re-enable the dropdown
+            categorySelect.disabled = false;
+
+            // Set up category change handler for subcategories
+            setupCategoryChangeHandler(categories);
+
+            // Show notification if successful
+            showNotification("Categories loaded successfully", "success");
+
+        } catch (error) {
+            console.error('Error loading categories:', error);
+
+            // Add a default category in case of error
+            categorySelect.innerHTML = '';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "Select Category";
+            categorySelect.appendChild(defaultOption);
+
+            const option = document.createElement('option');
+            option.value = "uncategorized";
+            option.textContent = "Uncategorized";
+            categorySelect.appendChild(option);
+
+            // Re-enable the dropdown
+            categorySelect.disabled = false;
+
+            // Show error notification
+            showNotification("Error loading categories: " + error.message, "danger");
+        }
+    }
+
+    // Setup category change handler for subcategories
+    function setupCategoryChangeHandler(categories) {
+        const categorySelect = document.getElementById('post-category');
+        const subcategorySelect = document.getElementById('post-subcategory');
+
+        if (!categorySelect || !subcategorySelect) return;
+
+        categorySelect.addEventListener('change', function() {
+            const categorySlug = this.value;
+
+            // Reset subcategory dropdown
+            subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+            subcategorySelect.disabled = !categorySlug;
+
+            if (!categorySlug) return;
+
+            // Find the selected category
+            const selectedCategory = categories.find(cat => cat.slug === categorySlug);
+
+            // Add subcategories if available
+            if (selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
+                selectedCategory.subcategories.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.slug;
+                    option.textContent = sub.name;
+                    subcategorySelect.appendChild(option);
+                });
+            }
+        });
+    }
+
+    // Add a refresh button next to the category dropdown
+    function addCategoryRefreshButton() {
+        const categoryLabel = document.querySelector('label[for="post-category"]');
+        if (!categoryLabel) return;
+
+        // Create a refresh button
+        const refreshButton = document.createElement('button');
+        refreshButton.type = 'button';
+        refreshButton.className = 'btn btn-sm btn-outline-secondary ms-2';
+        refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i>';
+        refreshButton.title = 'Refresh Categories';
+        refreshButton.style.padding = '0.25rem 0.5rem';
+        refreshButton.style.lineHeight = '1';
+
+        // Add click handler
+        refreshButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadCategoriesForNewPost();
+        });
+
+        // Insert after label
+        categoryLabel.insertAdjacentElement('afterend', refreshButton);
+    }
+
+    // Enhance navigation to reload categories when needed
+    function enhanceNavigation() {
+        // Enhance showSection function to load categories when needed
+        const originalShowSection = window.showSection;
+        if (typeof originalShowSection === 'function') {
+            window.showSection = function(sectionId) {
+                // Call the original showSection function
+                originalShowSection(sectionId);
+
+                // If navigating to new-post, load categories
+                if (sectionId === 'new-post') {
+                    console.log("New Post section activated, loading categories");
+                    setTimeout(function() {
+                        loadCategoriesForNewPost();
+                    }, 200); // Small delay to ensure the section is visible
+                }
+            };
+        }
+    }
+
+    // ===================================================
+    // CATEGORY PAGE FUNCTIONS
+    // ===================================================
+
+    // Get category and subcategory from URL
+    function getCategoryFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Get category parameter
+        return {
+            category: urlParams.get('category'),
+            subcategory: urlParams.get('subcategory')
+        };
+    }
+
+    // Load category page content
+    async function loadCategoryContent() {
+        try {
+            const { category, subcategory } = getCategoryFromUrl();
+            console.log(`Loading category page for: category=${category}, subcategory=${subcategory}`);
+
+            if (!category) {
+                console.warn('No category specified in URL');
+                return;
+            }
+
+            // Update page title and header
+            await updateCategoryHeader(category, subcategory);
+
+            // Load posts for this category
+            await loadCategoryPosts(category, subcategory);
+
+            // Load sidebar content
+            await loadSidebarContent();
+
+        } catch (error) {
+            console.error('Error loading category content:', error);
+        }
+    }
+
+    // Update category header
+    async function updateCategoryHeader(categorySlug, subcategorySlug) {
+        try {
+            console.log('Updating category header for:', categorySlug);
+            const { CategoryManager } = await import('./firebase-integration.js');
+            const categories = await CategoryManager.getCategories();
+
+            if (!categories || categories.length === 0) {
+                console.warn('No categories found in database');
+                return;
+            }
+
+            // Find the current category (case-insensitive)
+            const currentCategory = categories.find(cat =>
+                cat.slug && cat.slug.toLowerCase() === categorySlug.toLowerCase()
+            );
+
+            if (currentCategory) {
+                console.log('Found category:', currentCategory.name);
+
+                // Update page title
+                let pageTitle = currentCategory.name;
+                let headerTitle = currentCategory.name;
+
+                if (subcategorySlug && currentCategory.subcategories) {
+                    const subcategory = currentCategory.subcategories.find(sub =>
+                        sub.slug && sub.slug.toLowerCase() === subcategorySlug.toLowerCase()
+                    );
+
+                    if (subcategory) {
+                        console.log('Found subcategory:', subcategory.name);
+                        pageTitle = `${currentCategory.name} - ${subcategory.name}`;
+                        headerTitle = `${subcategory.name}`;
+                    }
+                }
+
+                document.title = `${pageTitle} - Code to Crack`;
+
+                // Update page header
+                const pageHeader = document.querySelector('.page-header h1');
+                if (pageHeader) {
+                    pageHeader.textContent = headerTitle;
+                }
+            } else {
+                console.warn(`Category not found: ${categorySlug}`);
+            }
+        } catch (error) {
+            console.error('Error updating category header:', error);
+        }
+    }
+
+    // Load category posts
+    async function loadCategoryPosts(category, subcategory, page = 1) {
+        try {
+            console.log(`Loading posts for category: ${category}`);
+
+            // Import the post rendering functions dynamically
+            const { loadPosts } = await import('./renderPosts.js');
+
+            const options = {
+                page: page,
+                pageSize: 10,
+                category: category
+            };
+
+            // Only add subcategory if it exists
+            if (subcategory) {
+                options.subcategory = subcategory;
+            }
+
+            console.log('Passing options to loadPosts:', options);
+
+            // Load posts with the specified options
+            await loadPosts(options);
+        } catch (error) {
+            console.error('Error loading category posts:', error);
+        }
+    }
+
+    // Load sidebar content
+    async function loadSidebarContent() {
+        try {
+            // Import and use the loadPopularPosts function
+            const { loadPopularPosts } = await import('./renderPosts.js');
+            await loadPopularPosts();
+        } catch (error) {
+            console.error('Error loading sidebar content:', error);
+        }
+    }
+
+    // ===================================================
+    // CATEGORY MANAGEMENT FUNCTIONS
+    // ===================================================
 
     // Initialize category form
     function initializeCategoryForm(form) {
@@ -29,7 +343,7 @@
                     name: document.getElementById('category-name').value,
                     slug: document.getElementById('category-slug').value || slugify(document.getElementById('category-name').value),
                     description: document.getElementById('category-description').value,
-                    subcategories: getSubcategoriesFromUI() // Get subcategories from UI
+                    subcategories: getSubcategoriesFromUI()
                 };
 
                 // Validate required fields
@@ -78,7 +392,7 @@
                 loadCategories();
 
                 // Reload categories dropdown
-                loadCategoriesDropdown();
+                loadCategoriesForNewPost();
 
                 // Reset form including category ID
                 form.reset();
@@ -218,43 +532,7 @@
         }
     }
 
-    // Generate slug from text
-    function slugify(text) {
-        return text.toString().toLowerCase()
-            .replace(/\s+/g, '-')        // Replace spaces with -
-            .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
-            .replace(/\-\-+/g, '-')      // Replace multiple - with single -
-            .replace(/^-+/, '')          // Trim - from start of text
-            .replace(/-+$/, '');         // Trim - from end of text
-    }
-
-    // Show notification
-    function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
-        notification.style.zIndex = '9999';
-        notification.style.maxWidth = '400px';
-        notification.innerHTML = `
-            <div class="d-flex align-items-center">
-                <div>${message}</div>
-                <button type="button" class="btn-close ms-2" aria-label="Close"></button>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        // Add event listener to close button
-        notification.querySelector('.btn-close').addEventListener('click', () => {
-            notification.remove();
-        });
-
-        // Auto-dismiss after 5 seconds
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
-    }
-
-    // Load categories
+    // Load categories for the admin panel
     async function loadCategories() {
         try {
             const { CategoryManager } = await import('./firebase-integration.js');
@@ -330,47 +608,7 @@
         }
     }
 
-    // Load categories dropdown
-    async function loadCategoriesDropdown() {
-        try {
-            const { CategoryManager } = await import('./firebase-integration.js');
-
-            if (!CategoryManager) {
-                throw new Error('CategoryManager is not available');
-            }
-
-            const categories = await CategoryManager.getCategories();
-            const categorySelect = document.getElementById('post-category');
-
-            if (categorySelect) {
-                categorySelect.innerHTML = '<option value="">Select Category</option>';
-
-                if (categories && categories.length > 0) {
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category.slug;
-                        option.textContent = category.name;
-                        categorySelect.appendChild(option);
-                    });
-                } else {
-                    // If no categories exist, add a default option
-                    const option = document.createElement('option');
-                    option.value = "uncategorized";
-                    option.textContent = "Uncategorized";
-                    categorySelect.appendChild(option);
-                }
-            }
-        } catch (error) {
-            console.error('Error loading categories:', error);
-            // Add a default category in case of error
-            const categorySelect = document.getElementById('post-category');
-            if (categorySelect) {
-                categorySelect.innerHTML = '<option value="uncategorized">Uncategorized</option>';
-            }
-        }
-    }
-
-    // Category actions
+    // Edit a category
     async function editCategory(categoryId) {
         try {
             // Show the category modal and load the category data
@@ -438,6 +676,7 @@
         }
     }
 
+    // Delete a category
     async function deleteCategory(categoryId) {
         if (confirm('Are you sure you want to delete this category? Posts in this category will not be deleted but will become uncategorized.')) {
             try {
@@ -461,7 +700,56 @@
         }
     }
 
-    // Make functions globally available
+    // ===================================================
+    // INITIALIZATION
+    // ===================================================
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM loaded, initializing category management system");
+
+        // Check what page we're on by looking for key elements
+        const isNewPostPage = document.getElementById('post-category') !== null;
+        const isCategoryAdminPage = document.getElementById('category-form') !== null;
+        const isCategoryViewPage = document.querySelector('.page-header') !== null;
+
+        // Initialize appropriate functionality based on the page
+        if (isNewPostPage) {
+            // New Post page initialization
+            loadCategoriesForNewPost();
+            addCategoryRefreshButton();
+            enhanceNavigation();
+        }
+
+        if (isCategoryAdminPage) {
+            // Category admin page initialization
+            const form = document.getElementById('category-form');
+            // Remove any existing event listeners by cloning and replacing the form
+            if (form) {
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
+                initializeCategoryForm(newForm);
+            }
+            initializeSubcategoryUI();
+            loadCategories();
+        }
+
+        if (isCategoryViewPage) {
+            // Category view page initialization
+            loadCategoryContent();
+        }
+    });
+
+    // ===================================================
+    // EXPORT FUNCTIONS TO WINDOW OBJECT
+    // ===================================================
+
+    // Make key functions globally available
+    window.loadCategoriesForNewPost = loadCategoriesForNewPost;
     window.editCategory = editCategory;
     window.deleteCategory = deleteCategory;
+    window.loadCategoryContent = loadCategoryContent;
+    window.getCategoryFromUrl = getCategoryFromUrl;
+    window.loadCategoryPosts = loadCategoryPosts;
+    window.showNotification = showNotification;
 })();

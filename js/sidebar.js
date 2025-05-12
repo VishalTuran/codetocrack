@@ -1,10 +1,12 @@
 // Load sidebar content
-import { loadPopularPosts } from "./renderPosts";
+import { loadPopularPosts } from "./renderPosts.js";
 import { CategoryManager, NewsletterManager } from './firebase-integration.js';
 
 
 async function loadSidebarContent() {
     try {
+
+        console.log("Loading sidebar content");
         // Load popular posts
         loadPopularPosts();
 
@@ -20,8 +22,23 @@ async function loadSidebarContent() {
 }
 
 // Load topics/categories
+// Modify loadTopics function to wait for widget loading
 async function loadTopics() {
     try {
+        // Wait for widget-loaded event for topics widget
+        await new Promise(resolve => {
+            if (document.querySelector('#topics-list')) {
+                resolve();
+            } else {
+                document.addEventListener('widget-loaded', function handler(e) {
+                    if (e.detail.widget === 'topics') {
+                        document.removeEventListener('widget-loaded', handler);
+                        resolve();
+                    }
+                });
+            }
+        });
+
         const categories = await CategoryManager.getCategories();
         renderTopics(categories);
     } catch (error) {
@@ -55,36 +72,45 @@ function renderTopics(categories) {
     }
 }
 
-// Initialize newsletter form
+// Modify initializeNewsletterForm function
 function initializeNewsletterForm() {
-    const newsletterForm = document.querySelector('.newsletter form');
+    // Wait for newsletter widget to load
+    document.addEventListener('widget-loaded', function(e) {
+        if (e.detail.widget === 'newsletter') {
+            const newsletterForm = document.querySelector('.newsletter form');
 
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            if (newsletterForm) {
+                // Make sure previous event listeners are removed (optional)
+                const newForm = newsletterForm.cloneNode(true);
+                newsletterForm.parentNode.replaceChild(newForm, newsletterForm);
 
-            const emailInput = newsletterForm.querySelector('input[type="email"]');
-            const email = emailInput.value;
+                newForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('Newsletter form submitted'); // Add this for debugging
 
-            if (validateEmail(email)) {
-                try {
-                    await NewsletterManager.subscribe(email);
+                    const emailInput = this.querySelector('input[type="email"]');
+                    const email = emailInput ? emailInput.value.trim() : '';
 
-                    // Show success message
-                    showNotification('Successfully subscribed to newsletter!', 'success');
+                    if (validateEmail(email)) {
+                        try {
+                            await NewsletterManager.subscribe(email);
+                            showNotification('Successfully subscribed to newsletter!', 'success');
+                            emailInput.value = '';
+                        } catch (error) {
+                            console.error('Error subscribing to newsletter:', error);
+                            showNotification('Failed to subscribe: ' + error.message, 'danger');
+                        }
+                    } else {
+                        showNotification('Please enter a valid email address.', 'warning');
+                    }
+                });
 
-                    // Clear form
-                    emailInput.value = '';
-
-                } catch (error) {
-                    console.error('Error subscribing to newsletter:', error);
-                    showNotification('Failed to subscribe. Please try again.', 'error');
-                }
+                console.log('Newsletter form handler attached');
             } else {
-                showNotification('Please enter a valid email address.', 'error');
+                console.error('Newsletter form not found after widget loaded');
             }
-        });
-    }
+        }
+    });
 }
 
 // Validate email

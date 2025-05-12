@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="css/simple-line-icons.css" type="text/css" media="all">
   <link rel="stylesheet" href="css/style.css" type="text/css" media="all">
 
+  <!-- Widget Loader Script -->
+  <script src="js/widget-loader.js"></script>
 </head>
 
 <body>
@@ -24,47 +26,8 @@
 
   <div class="main-overlay"></div>
 
-  <header class="header-personal">
-    <div class="container-xl header-top">
-      <div class="row align-items-center">
-
-        <div class="col-4 d-none d-md-block d-lg-block">
-        </div>
-
-        <div class="col-md-4 col-sm-12 col-xs-12 text-center">
-          <!-- site logo -->
-          <a class='navbar-brand' href='index.html'><img src="images/logo.png" alt="logo" width="100"/></a>
-          <a class='d-block text-logo' href='index.html'>Code to Crack<span class="dot">.</span></a>
-          <span class="slogan d-block">Compile Confidence, Execute Success</span>
-        </div>
-
-        <div class="col-md-4 col-sm-12 col-xs-12">
-          <!-- header buttons -->
-          <div class="header-buttons float-md-end mt-4 mt-md-0">
-            <button class="search icon-button">
-              <i class="icon-magnifier"></i>
-            </button>
-            <button class="burger-menu icon-button ms-2 float-end float-md-none">
-              <span class="burger-icon"></span>
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <nav class="navbar navbar-expand-lg">
-      <div class="container-xl">
-
-        <div class="collapse navbar-collapse justify-content-center centered-nav">
-          <ul class="navbar-nav">
-            <!-- Navigation will be loaded here -->
-          </ul>
-        </div>
-
-      </div>
-    </nav>
-  </header>
+  <!-- Header Widget -->
+  <header></header>
 
   <section class="hero-carousel">
     <div class="container-xl">
@@ -106,119 +69,30 @@
           <!-- pagination -->
           <nav>
             <ul class="pagination justify-content-center">
-
             </ul>
           </nav>
         </div>
 
         <div class="col-lg-4">
           <div class="sidebar">
-
-            <!-- Popular Posts Widget -->
-            <div class="widget rounded">
-              <div class="widget-header text-center">
-                <h3 class="widget-title">Popular Posts</h3>
-                <img src="images/wave.svg" class="wave" alt="wave" />
-              </div>
-              <div class="widget-content" id="popular-posts-container">
-                <!-- Popular posts will be loaded here -->
-              </div>
-            </div>
-
-            <div class="widget rounded newsletter">
-              <div class="widget-header text-center">
-                <h3 class="widget-title">Newsletter</h3>
-                <img src="images/wave.svg" class="wave" alt="wave" />
-              </div>
-              <div class="widget-content">
-                <span class="newsletter-headline text-center mb-3">Join 70,000 subscribers!</span>
-                <form>
-                  <div class="mb-2">
-                    <input class="form-control w-100 text-center" placeholder="Email address…" type="email">
-                  </div>
-                  <button class="btn btn-default btn-full" type="submit">Sign Up</button>
-                </form>
-                <span class="newsletter-privacy text-center mt-3">By signing up, you agree to our <a href="#">Privacy Policy</a></span>
-              </div>
-            </div>
-
-            <!-- Topics Widget -->
-            <div class="widget rounded">
-              <div class="widget-header text-center">
-                <h3 class="widget-title">Explore Topics</h3>
-                <img src="images/wave.svg" class="wave" alt="wave" />
-              </div>
-              <div class="widget-content">
-                <ul class="list" id="topics-list">
-                  <!-- Topics will be loaded here -->
-                </ul>
-              </div>
-            </div>
-
+            <!-- Widget placeholders -->
+            <div class="popular-posts-placeholder"></div>
+            <div class="newsletter-placeholder"></div>
+            <div class="topics-placeholder"></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <footer>
-    <div class="container-xl">
-      <div class="footer-inner">
-        <div class="row d-flex align-items-center gy-4">
-          <!-- copyright text -->
-          <div class="col-md-4">
-            <span class="copyright">©2025 Code to Crack</span>
-          </div>
-
-          <!-- social icons -->
-          <div class="col-md-4 text-center">
-          </div>
-
-          <!-- go to top button -->
-          <div class="col-md-4">
-            <a href="#" id="return-to-top" class="float-md-end"><i class="icon-arrow-up"></i>Back to Top</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <!-- Footer Widget -->
+  <footer></footer>
 
 </div><!-- end site wrapper -->
 
-<!-- search popup area -->
-<div class="search-popup">
-  <!-- close button -->
-  <button type="button" class="btn-close" aria-label="Close"></button>
-  <!-- content -->
-  <div class="search-content">
-    <div class="text-center">
-      <h3 class="mb-4 mt-0">Press ESC to close</h3>
-    </div>
-    <!-- form -->
-    <form class="d-flex search-form">
-      <input class="form-control me-2" type="search" placeholder="Search and press enter ..." aria-label="Search">
-      <button class="btn btn-default btn-lg" type="submit"><i class="icon-magnifier"></i></button>
-    </form>
-  </div>
-</div>
-
-<!-- canvas menu -->
-<div class="canvas-menu d-flex align-items-end flex-column">
-  <!-- close button -->
-  <button type="button" class="btn-close" aria-label="Close"></button>
-
-  <!-- logo -->
-  <div class="logo">
-    <img src="images/logo.png" alt="Code to Crack" />
-  </div>
-
-  <!-- menu -->
-  <nav>
-    <ul class="vertical-menu">
-      <!-- Mobile menu will be loaded here -->
-    </ul>
-  </nav>
-</div>
+<!-- Popup Widgets -->
+<div class="search-popup-placeholder"></div>
+<div class="canvas-menu-placeholder"></div>
 
 <!-- JAVA SCRIPTS -->
 <script src="js/jquery.min.js"></script>
@@ -233,5 +107,16 @@
 <script type="module" src="js/renderPosts.js"></script>
 <script type="module" src="js/main-content.js"></script>
 <script type="module" src="js/sidebar.js"></script>
+
+<script>
+  // Wait for all widgets to load before initializing components
+  document.addEventListener('widgets-complete', function() {
+    console.log('All widgets loaded, initializing components...');
+    // Initialize components that depend on the widgets being loaded
+    if (typeof initCarousel === 'function') {
+      initCarousel();
+    }
+  });
+</script>
 </body>
 </html>

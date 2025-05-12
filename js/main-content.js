@@ -1,4 +1,3 @@
-// main-content.js
 import {
     loadPosts,
     loadFeaturedPosts,
@@ -7,7 +6,6 @@ import {
 import {
     loadSidebarContent
 } from './sidebar.js'
-
 
 import { PostManager } from './firebase-integration.js';
 
@@ -202,9 +200,26 @@ function updatePaginationState(activePage) {
 // Initialize search functionality
 function initializeSearch() {
     const searchButton = document.querySelector('.search');
+
+    // Check if search popup exists
     const searchPopup = document.querySelector('.search-popup');
+    if (!searchPopup) {
+        console.warn('Search popup not found. Search functionality not initialized.');
+        return; // Exit early if search popup isn't found
+    }
+
     const searchForm = document.querySelector('.search-form');
+    if (!searchForm) {
+        console.warn('Search form not found. Search functionality not initialized.');
+        return; // Exit early if search form isn't found
+    }
+
     const searchInput = searchForm.querySelector('input[type="search"]');
+    if (!searchInput) {
+        console.warn('Search input not found. Search functionality not initialized.');
+        return; // Exit early if search input isn't found
+    }
+
     const closeButton = searchPopup.querySelector('.btn-close');
 
     // Open search popup
@@ -269,11 +284,23 @@ function initializeBackToTop() {
     }
 }
 
+// Main initialization function
+function initializeMainContent() {
+    loadHomeContent();
+    initializeBackToTop();
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Only handle back to top and content initially
     loadHomeContent();
-    initializeSearch();
     initializeBackToTop();
+
+    // Wait for all widgets to be loaded before initializing search
+    document.addEventListener('widgets-complete', () => {
+        console.log('All widgets loaded, initializing search functionality...');
+        initializeSearch();
+    });
 });
 
 // Export functions

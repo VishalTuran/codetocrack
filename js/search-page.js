@@ -1,7 +1,8 @@
-// search-page.js
+// Update the search-page.js file to use the sidebar.js implementation
+
 import { PostManager } from './firebase-integration.js';
-import { renderPost, loadPopularPosts } from './renderPosts.js';
-import { CategoryManager } from './firebase-integration.js';
+import { renderPost } from './renderPosts.js';
+import { loadSidebarContent } from './sidebar.js';  // Import from sidebar.js
 
 // Get search query from URL
 function getSearchQuery() {
@@ -89,8 +90,8 @@ async function loadSearchResults() {
             }
         }
 
-        // Load sidebar content
-        loadSidebarContent();
+        // Load sidebar content using the shared implementation
+        await loadSidebarContent();
 
         hideLoader();
     } catch (error) {
@@ -192,59 +193,6 @@ function initializeSearchPagination(query, totalPages) {
     }
 }
 
-// Load sidebar content
-async function loadSidebarContent() {
-    try {
-        // Load popular posts
-        await loadPopularPosts();
-
-        // Load topics (categories)
-        const categories = await CategoryManager.getCategories();
-
-        // Render categories in sidebar
-        const topicsList = document.querySelector('#topics-list');
-        if (topicsList && categories) {
-            topicsList.innerHTML = '';
-
-            categories.forEach(category => {
-                const count = category.postCount || 0;
-                const listItem = document.createElement('li');
-
-                listItem.innerHTML = `
-                    <a href="category.html?category=${category.slug}">${category.name}</a>
-                    <span>(${count})</span>
-                `;
-
-                topicsList.appendChild(listItem);
-            });
-        }
-
-        // Initialize search forms
-        initializeSearchForms();
-
-    } catch (error) {
-        console.error('Error loading sidebar content:', error);
-    }
-}
-
-// Initialize search forms
-function initializeSearchForms() {
-    const searchForms = document.querySelectorAll('.search-form');
-
-    searchForms.forEach(form => {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const searchInput = form.querySelector('input[type="search"]');
-            const query = searchInput.value.trim();
-
-            if (query) {
-                window.location.href = `search.html?q=${encodeURIComponent(query)}`;
-            }
-        });
-    });
-}
-
 // Utility functions
 function showLoader() {
     const loaderDiv = document.createElement('div');
@@ -289,5 +237,5 @@ document.addEventListener('DOMContentLoaded', loadSearchResults);
 export {
     loadSearchResults,
     performSearch,
-    getSearchQuery
+    getSearchQuery,
 };

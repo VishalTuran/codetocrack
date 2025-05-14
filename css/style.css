@@ -3513,4 +3513,304 @@ img.author {
   color: #000 !important; /* Black icons in buttons */
 }
 
+/* Add these CSS rules to style.css to fix the featured posts carousel */
+
+/* Updated Featured Posts Carousel Styles */
+.post-carousel-featured {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding: 15px 0;
+  margin: 0 -10px;
+  gap: 20px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.post-carousel-featured::-webkit-scrollbar {
+  display: none;
+}
+
+.featured-post-card {
+  min-width: 300px;
+  width: 330px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  height: 480px;
+  margin: 0 10px;
+}
+
+.featured-post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Make carousel nav buttons more visible and active */
+.carousel-nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.carousel-nav button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #EBEBEB;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9faabb;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-nav button:hover {
+  color: #FE4F70;
+  border-color: #FE4F70;
+  background-color: #fff8fa;
+}
+
+.carousel-nav button:focus {
+  outline: none;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 991px) {
+  .featured-post-card {
+    min-width: 270px;
+    width: 300px;
+  }
+}
+
+@media (max-width: 767px) {
+  .featured-post-card {
+    min-width: 250px;
+    width: 280px;
+    height: 450px;
+  }
+}
+
+
+/* Add these CSS styles to make carousel navigation buttons more visible */
+
+.featured-carousel-container {
+  position: relative;
+  padding: 0 15px;
+  margin-bottom: 50px;
+}
+
+/* Improved carousel navigation buttons */
+.carousel-nav {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.carousel-nav button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #EBEBEB;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #203656;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  opacity: 1;
+}
+
+.carousel-nav button:hover {
+  color: white;
+  background: #FE4F70;
+  border-color: #FE4F70;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(254, 79, 112, 0.3);
+}
+
+.carousel-nav button i {
+  font-size: 14px;
+}
+
+/* Make sure the buttons are always visible */
+#carousel-prev, #carousel-next {
+  display: flex !important;
+  visibility: visible !important;
+}
+
+/* Add these CSS styles for the hashtag-style tags */
+
+/* Hashtag-style tag cloud in sidebar */
+.widget .tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.widget .tag-cloud .tag-item {
+  color: #203656;
+  background-color: #f1f8ff;
+  border-radius: 25px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid #e6eef8;
+  display: inline-flex;
+  align-items: center;
+}
+
+.widget .tag-cloud .tag-item:hover {
+  background-color: #FE4F70;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(254, 79, 112, 0.2);
+  border-color: #FE4F70;
+}
+
+.widget .tag-cloud .tag-item::before {
+  content: "#";
+  margin-right: 2px;
+  font-weight: 700;
+}
+
+.widget .tag-cloud .tag-item .tag-count {
+  margin-left: 5px;
+  background: rgba(0,0,0,0.1);
+  padding: 2px 6px;
+  border-radius: 20px;
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* Ensure topics widget has proper styling */
+.widget .list {
+  display: none; /* Hide the old list style */
+}
+
+.widget .tag-cloud {
+  display: flex; /* Show the new tag cloud */
+}
+
+/* Fix for widget title */
+.widget-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.widget-title {
+  font-size: 20px;
+  margin: 0;
+  color: #203656;
+}
+
+/* Ensure consistent sidebar widget styling */
+.sidebar .widget {
+  border: solid 1px #EBEBEB;
+  padding: 35px 30px;
+  margin-bottom: 40px;
+  border-radius: 10px;
+  background: white;
+}
+
+/* Simplified CSS for social sharing */
+
+/* Basic styles for social sharing */
+.social-share {
+  position: relative;
+}
+
+.social-share .toggle-button {
+  background: transparent;
+  border: none;
+  color: #9faabb;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.social-share .toggle-button:hover {
+  color: #FE4F70;
+}
+
+/* Icons container */
+.social-share .icons {
+  display: none;
+  margin-left: 10px;
+}
+
+.social-share .icons.visible {
+  display: inline-flex;
+}
+
+/* Individual share icons */
+.social-share .icons li a {
+  color: #9faabb;
+  font-size: 14px;
+  padding: 5px;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.social-share .icons li a:hover {
+  color: #FE4F70;
+  transform: translateY(-2px);
+}
+
+/* For single post page */
+.post-single .post-bottom .social-share {
+  margin-top: 20px;
+}
+
+.post-single .post-bottom .social-share h6 {
+  margin-bottom: 10px;
+  color: #203656;
+}
+
+.post-single .post-bottom .social-share .icons {
+  display: flex;
+  margin-left: 0;
+}
+
+.post-single .post-bottom .social-share .icons li a {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e9ecef;
+  margin-right: 10px;
+}
+
+.post-single .post-bottom .social-share .icons li a:hover {
+  background-color: #FE4F70;
+  border-color: #FE4F70;
+  color: white;
+}
+
 

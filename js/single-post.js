@@ -1,7 +1,5 @@
-// single-post.js
 import { PostManager, CommentManager } from './firebase-integration.js';
-import { loadPopularPosts } from './renderPosts.js';
-import { CategoryManager } from './firebase-integration.js';
+import { loadSidebarContent } from './sidebar.js';
 
 // Get post ID from URL
 function getPostIdFromUrl() {
@@ -38,16 +36,18 @@ async function loadPost() {
         renderPostContent(post);
 
         // Load comments
-        loadComments(postId);
+        await loadComments(postId);
 
         // Update breadcrumb
         updateBreadcrumb(post);
 
         // Load sidebar content
-        loadSidebarContent();
+        await loadSidebarContent();
 
         // Initialize comment form
         initializeCommentForm(postId);
+
+        addSinglePostSharing()
 
         hideLoader();
     } catch (error) {
@@ -76,10 +76,13 @@ function renderPostHeader(post) {
         if (titleElement) titleElement.textContent = post.title;
         if (authorImage) authorImage.src = post.authorImg || 'images/other/author-sm.png';
         if (authorName) authorName.textContent = post.author;
-        if (categoryElement) {
+
+        // Update category link with proper URL
+        if (categoryElement && post.category) {
             categoryElement.textContent = post.category;
             categoryElement.href = `category.html?category=${post.category}`;
         }
+
         if (dateElement) dateElement.textContent = postDate;
     }
 
@@ -115,12 +118,12 @@ function renderTags(tags) {
 
     if (tagsContainer && tags && tags.length > 0) {
         tagsContainer.innerHTML = tags.map(tag =>
-            `<a href="search.html?q=${tag}" class="tag">#${tag}</a>`
+            `<a href="search.html?q=${encodeURIComponent(tag)}" class="tag">#${tag}</a>`
         ).join(' ');
     }
 }
 
-// Update breadcrumb
+// Update breadcrumb with correct category link
 function updateBreadcrumb(post) {
     const categoryLink = document.getElementById('category-breadcrumb');
     const postTitle = document.getElementById('post-title-breadcrumb');
@@ -170,9 +173,6 @@ async function loadComments(postId) {
 
                 const commentHtml = `
                     <li class="comment rounded">
-                        <div class="thumb">
-                            <img src="images/other/comment-${Math.floor(Math.random() * 3) + 1}.png" alt="${comment.authorName}" />
-                        </div>
                         <div class="details">
                             <h4 class="name"><a href="#">${comment.authorName}</a></h4>
                             <span class="date">${commentDate}</span>
@@ -316,77 +316,70 @@ function initializeCommentForm(postId) {
     }
 }
 
-// Load sidebar content
-async function loadSidebarContent() {
+// Updated single-post.js snippet to add social sharing safely
+
+/**
+ * Add social sharing to the single post page
+ * This function should be called in your loadPost function
+ */
+function addSinglePostSharing() {
     try {
-        // Load popular posts
-        await loadPopularPosts();
+        // Find or create the social share container in post bottom
+        const postBottom = document.querySelector('.post-bottom');
+        if (!postBottom) return;
 
-        // Load topics (categories)
-        const categories = await CategoryManager.getCategories();
+        // Check if sharing is already added
+        if (postBottom.querySelector('.social-share')) return;
 
-        // Render categories in sidebar
-        const topicsList = document.querySelector('#topics-list');
-        if (topicsList && categories) {
-            topicsList.innerHTML = '';
+        // Get current post URL and title
+        const postUrl = window.location.href;
+        const postTitle = document.querySelector('.post-header .title')?.textContent || document.title;
 
-            categories.forEach(category => {
-                const count = category.postCount || 0;
-                const listItem = document.createElement('li');
+        // Create share container
+        const shareContainer = document.createElement('div');
+        shareContainer.className = 'social-share';
+        shareContainer.innerHTML = `
+      <h6>Share this post:</h6>
+      <ul class="icons list-unstyled list-inline mb-0">
+        <li class="list-inline-item">
+          <a href="#" aria-label="Share on Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+        </li>
+        <li class="list-inline-item">
+          <a href="#" aria-label="Share on Twitter">
+            <i class="fab fa-twitter"></i>
+          </a>
+        </li>
+        <li class="list-inline-item">
+          <a href="#" aria-label="Share on LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+        </li>
+        <li class="list-inline-item">
+          <a href="#" aria-label="Share on Pinterest">
+            <i class="fab fa-pinterest"></i>
+          </a>
+        </li>
+        <li class="list-inline-item">
+          <a href="#" aria-label="Share on Telegram">
+            <i class="fab fa-telegram-plane"></i>
+          </a>
+        </li>
+        <li class="list-inline-item">
+          <a href="#" aria-label="Share via Email">
+            <i class="far fa-envelope"></i>
+          </a>
+        </li>
+      </ul>
+    `;
 
-                listItem.innerHTML = `
-                    <a href="category.html?category=${category.slug}">${category.name}</a>
-                    <span>(${count})</span>
-                `;
-
-                topicsList.appendChild(listItem);
-            });
-        }
-
-        // Initialize newsletter form
-        initializeNewsletterForm();
+        // Add to post bottom
+        postBottom.appendChild(shareContainer);
 
     } catch (error) {
-        console.error('Error loading sidebar content:', error);
+        console.error("Error adding single post sharing:", error);
     }
-}
-
-// Initialize newsletter form
-function initializeNewsletterForm() {
-    const newsletterForm = document.querySelector('.newsletter form');
-
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const emailInput = newsletterForm.querySelector('input[type="email"]');
-            const email = emailInput.value;
-
-            if (validateEmail(email)) {
-                try {
-                    // Implement subscription logic here
-
-                    // Show success message
-                    showNotification('Successfully subscribed to newsletter!', 'success');
-
-                    // Clear form
-                    emailInput.value = '';
-
-                } catch (error) {
-                    console.error('Error subscribing to newsletter:', error);
-                    showNotification('Failed to subscribe. Please try again.', 'danger');
-                }
-            } else {
-                showNotification('Please enter a valid email address.', 'danger');
-            }
-        });
-    }
-}
-
-// Validate email
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
 }
 
 // Utility functions
@@ -452,5 +445,6 @@ document.addEventListener('DOMContentLoaded', loadPost);
 // Export functions
 export {
     loadPost,
-    getPostIdFromUrl
+    getPostIdFromUrl,
+    addSinglePostSharing
 };

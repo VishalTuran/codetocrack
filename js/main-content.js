@@ -15,6 +15,10 @@ async function loadHomeContent() {
         // Load featured posts
         await loadFeaturedPosts();
 
+        setTimeout(() => {
+            initializeCarouselNavigation();
+        }, 500);
+
         // Load regular posts
         await loadPosts({
             page: 1,
@@ -32,6 +36,49 @@ async function loadHomeContent() {
     } catch (error) {
         console.error('Error loading home content:', error);
     }
+}
+
+// This fix needs to be added to the main-content.js file after the loadHomeContent function
+
+// Enhanced carousel navigation for featured posts
+function initCarousel() {
+    const carousel = document.getElementById('featured-posts');
+    const prevButton = document.getElementById('carousel-prev');
+    const nextButton = document.getElementById('carousel-next');
+
+    if (!carousel || !prevButton || !nextButton) return;
+
+    // Set scroll amount (width of one card + gap)
+    const scrollAmount = 370; // Approximate width of card + padding
+
+    // Add click event to previous button
+    prevButton.addEventListener('click', () => {
+        carousel.scrollBy({
+            left: -scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+
+    // Add click event to next button
+    nextButton.addEventListener('click', () => {
+        carousel.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+
+    // Hide navigation buttons when at the beginning or end
+    carousel.addEventListener('scroll', () => {
+        const isAtStart = carousel.scrollLeft <= 10;
+        const isAtEnd = carousel.scrollLeft >= (carousel.scrollWidth - carousel.clientWidth - 10);
+
+        prevButton.style.opacity = isAtStart ? '0.5' : '1';
+        nextButton.style.opacity = isAtEnd ? '0.5' : '1';
+    });
+
+    // Initial check for button opacity
+    const isAtStart = carousel.scrollLeft <= 10;
+    prevButton.style.opacity = isAtStart ? '0.5' : '1';
 }
 
 // Initialize pagination
@@ -303,10 +350,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+function initializeCarouselNavigation() {
+    console.log("Initializing carousel navigation");
+    const carousel = document.getElementById('featured-posts');
+    const prevButton = document.getElementById('carousel-prev');
+    const nextButton = document.getElementById('carousel-next');
+
+    if (!carousel || !prevButton || !nextButton) {
+        console.error("Missing carousel elements:",
+            !carousel ? "carousel container" : "",
+            !prevButton ? "prev button" : "",
+            !nextButton ? "next button" : "");
+        return;
+    }
+
+    console.log("Carousel elements found, attaching event listeners");
+
+    // Set scroll amount (width of one card + gap)
+    const scrollAmount = 350; // Approximate width of card + padding
+
+    // Add click event to previous button
+    prevButton.addEventListener('click', () => {
+        console.log("Previous button clicked, scrolling left");
+        carousel.scrollBy({
+            left: -scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+
+    // Add click event to next button
+    nextButton.addEventListener('click', () => {
+        console.log("Next button clicked, scrolling right");
+        carousel.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+
+    // Make buttons visible and cursor pointer
+    prevButton.style.display = 'flex';
+    nextButton.style.display = 'flex';
+    prevButton.style.cursor = 'pointer';
+    nextButton.style.cursor = 'pointer';
+
+    console.log("Carousel navigation initialized successfully");
+}
+
+
 // Export functions
 export {
     loadHomeContent,
     loadSidebarContent,
     initializeSearch,
-    initializePagination
+    initializePagination,
+    initCarousel,
+    initializeCarouselNavigation
 };

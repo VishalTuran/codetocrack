@@ -1,3 +1,4 @@
+<!-- Update blog-single.html to use sidebar.js -->
 <!DOCTYPE html>
 <html lang="en-US">
 
@@ -31,14 +32,6 @@
 	<!-- section main content -->
 	<section class="main-content mt-3">
 		<div class="container-xl">
-
-			<nav aria-label="breadcrumb">
-				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="index.html">Home</a></li>
-					<li class="breadcrumb-item"><a href="#" id="category-breadcrumb">Category</a></li>
-					<li class="breadcrumb-item active" aria-current="page" id="post-title-breadcrumb">Post Title</li>
-				</ol>
-			</nav>
 
 			<div class="row gy-4">
 
@@ -76,26 +69,11 @@
 
 					<div class="spacer" data-height="50"></div>
 
-					<div class="about-author padding-30 rounded">
-						<div class="thumb">
-							<img src="images/other/avatar-about.png" alt="Author" />
-						</div>
-						<div class="details">
-							<h4 class="name"><a href="#" id="author-name">Author Name</a></h4>
-							<p id="author-bio">Author bio will appear here.</p>
-							<!-- social icons -->
-							<ul class="social-icons list-unstyled list-inline mb-0">
-								<li class="list-inline-item"><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-								<li class="list-inline-item"><a href="#"><i class="fab fa-twitter"></i></a></li>
-								<li class="list-inline-item"><a href="#"><i class="fab fa-instagram"></i></a></li>
-								<li class="list-inline-item"><a href="#"><i class="fab fa-pinterest"></i></a></li>
-								<li class="list-inline-item"><a href="#"><i class="fab fa-medium"></i></a></li>
-								<li class="list-inline-item"><a href="#"><i class="fab fa-youtube"></i></a></li>
-							</ul>
-						</div>
-					</div>
 
 					<div class="spacer" data-height="50"></div>
+
+					<div class="spacer" data-height="50"></div>
+
 
 					<!-- section header -->
 					<div class="section-header">
@@ -164,7 +142,6 @@
 
 				<div class="col-lg-4">
 					<div class="sidebar">
-						<!-- Widget placeholders -->
 						<div class="popular-posts-placeholder"></div>
 						<div class="newsletter-placeholder"></div>
 						<div class="topics-placeholder"></div>
@@ -197,8 +174,10 @@
 <script type="module" src="js/firebase-integration.js"></script>
 <script type="module" src="js/navbar.js"></script>
 <script type="module" src="js/renderPosts.js"></script>
-<script type="module" src="js/single-post.js"></script>
 <script type="module" src="js/sidebar.js"></script>
+<script type="module" src="js/single-post.js"></script>
+<script type="module" src="js/simplified-social-share.js"></script>
+
 
 <script>
 	// Get the post ID from the URL

@@ -1,3 +1,4 @@
+<!-- Update category.html to use sidebar.js -->
 <!DOCTYPE html>
 <html lang="en-US">
 
@@ -64,8 +65,8 @@
                     <div class="sidebar">
                         <!-- Widget placeholders -->
                         <div class="popular-posts-placeholder"></div>
-                        <div class="topics-placeholder"></div>
                         <div class="newsletter-placeholder"></div>
+                        <div class="topics-placeholder"></div>
                     </div>
                 </div>
             </div>
@@ -92,9 +93,13 @@
 <script type="module" src="js/firebase-integration.js"></script>
 <script type="module" src="js/navbar.js"></script>
 <script type="module" src="js/renderPosts.js"></script>
-<script type="module" src="js/category.js"></script>
 <script type="module" src="js/sidebar.js"></script>
+<script type="module" src="js/category.js"></script>
+<script type="module" src="js/simplified-social-share.js"></script>
 
-<!-- REMOVED THE AUTO-REDIRECT CODE -->
+
+<script>
+    // The category.js script handles loading content based on the URL parameters
+</script>
 </body>
 </html>

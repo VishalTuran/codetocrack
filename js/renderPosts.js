@@ -10,6 +10,16 @@ function renderPost(post, type = 'grid') {
             day: 'numeric'
         });
 
+        // Create proper category link with the category slug
+        const categoryLink = post.category ?
+            `<a class='category-badge position-absolute' href='category.html?category=${post.category}'>${post.category}</a>` :
+            '';
+
+        // For meta list, also ensure category links to the category page
+        const categoryMeta = post.category ?
+            `<li class="list-inline-item"><a href="category.html?category=${post.category}" class="category">${post.category}</a></li>` :
+            '';
+
         if (type === 'list') {
             return `
         <article class="post post-list-sm square before-seperator">
@@ -24,6 +34,7 @@ function renderPost(post, type = 'grid') {
             <h6 class="post-title my-0"><a href='blog-single.html?id=${post.id}'>${post.title}</a></h6>
             <ul class="meta list-inline mt-1 mb-0">
               <li class="list-inline-item">${postDate}</li>
+              ${post.category ? `<li class="list-inline-item"><a href="category.html?category=${post.category}">${post.category}</a></li>` : ''}
             </ul>
           </div>
         </article>
@@ -35,7 +46,7 @@ function renderPost(post, type = 'grid') {
       <div class="col-sm-6">
         <article class="post post-grid rounded bordered">
           <div class="thumb top-rounded">
-            <a class='category-badge position-absolute' href='category.html?category=${post.category}'>${post.category}</a>
+            ${categoryLink}
             <span class="post-format">
               <i class="icon-picture"></i>
             </span>
@@ -50,6 +61,7 @@ function renderPost(post, type = 'grid') {
               <li class="list-inline-item">
                 <a href="#"><img src="${post.authorImg || 'images/other/author-sm.png'}" class="author" alt="${post.author}" />${post.author}</a>
               </li>
+              ${categoryMeta}
               <li class="list-inline-item">${postDate}</li>
             </ul>
             <h5 class="post-title mb-3 mt-3"><a href='blog-single.html?id=${post.id}'>${post.title}</a></h5>
@@ -81,6 +93,8 @@ function renderPost(post, type = 'grid') {
 }
 
 // Function to render featured post
+// Modify the renderFeaturedPost function in renderPosts.js
+
 function renderFeaturedPost(post) {
     try {
         const postDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toLocaleDateString('en-US', {
@@ -104,31 +118,29 @@ function renderFeaturedPost(post) {
         }
 
         return `
-      <div class="col-lg-4 col-md-6 col-sm-12">
-        <article class="post featured-post-card">
-          <div class="thumb rounded">
-            ${post.category ? `<a class="category-badge position-absolute" href='category.html?category=${post.category}'>${post.category}</a>` : ''}
-            <a href='blog-single.html?id=${post.id}'>
-              <div class="inner" style="background-image: url('${post.featuredImage}');"></div>
-            </a>
-          </div>
-          <div class="details">
-            <ul class="meta list-inline mb-0">
-              <li class="list-inline-item">
-                <a href="#"><img src="${post.authorImg || 'images/author-sm.png'}" class="author" alt="${post.author}" />${post.author}</a>
-              </li>
-              <li class="list-inline-item">${postDate}</li>
-            </ul>
-            <h5 class="post-title mb-3 mt-3"><a href='blog-single.html?id=${post.id}'>${title}</a></h5>
-            <p class="excerpt mb-0">${excerpt}</p>
-            <div class="post-bottom d-flex align-items-center">
-              <div class="more-button">
-                <a href='blog-single.html?id=${post.id}' class="btn btn-default btn-sm">Read More <i class="icon-arrow-right"></i></a>
-              </div>
+      <article class="featured-post-card">
+        <div class="thumb rounded">
+          ${post.category ? `<a class="category-badge position-absolute" href='category.html?category=${post.category}'>${post.category}</a>` : ''}
+          <a href='blog-single.html?id=${post.id}'>
+            <div class="inner" style="background-image: url('${post.featuredImage}');"></div>
+          </a>
+        </div>
+        <div class="details">
+          <ul class="meta list-inline mb-0">
+            <li class="list-inline-item">
+              <a href="#"><img src="${post.authorImg || 'images/author-sm.png'}" class="author" alt="${post.author}" />${post.author}</a>
+            </li>
+            <li class="list-inline-item">${postDate}</li>
+          </ul>
+          <h5 class="post-title mb-3 mt-3"><a href='blog-single.html?id=${post.id}'>${title}</a></h5>
+          <p class="excerpt mb-0">${excerpt}</p>
+          <div class="post-bottom d-flex align-items-center">
+            <div class="more-button">
+              <a href='blog-single.html?id=${post.id}' class="btn btn-default btn-sm">Read More <i class="icon-arrow-right"></i></a>
             </div>
           </div>
-        </article>
-      </div>
+        </div>
+      </article>
     `;
     } catch (error) {
         console.error('Error rendering featured post:', error);
@@ -169,40 +181,54 @@ async function loadPosts(options = {}) {
 // Load featured posts
 async function loadFeaturedPosts() {
     try {
-        // Add loading indicator while posts are being fetched
+        // Get the container
         const featuredContainer = document.getElementById('featured-posts');
         if (featuredContainer) {
+            // Show loading indicator
             featuredContainer.innerHTML = `
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            `;
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      `;
 
             // Get featured posts from PostManager
             const featuredPosts = await PostManager.getPosts({
-                orderField: 'featured',
+                featured: true,  // Only get featured posts
+                status: 'published',
+                orderField: 'publishDate',
                 orderDirection: 'desc',
-                pageSize: 6  // Increased to show more posts in the carousel
+                pageSize: 8  // Increased to show more posts in the carousel
             });
+
+            console.log('Featured posts:', featuredPosts);
 
             // Clear loading indicator
             featuredContainer.innerHTML = '';
 
             if (featuredPosts.length === 0) {
                 // Hide section if no featured posts
-                featuredContainer.style.display = 'none';
+                const carouselSection = document.querySelector('.hero-carousel');
+                if (carouselSection) {
+                    carouselSection.style.display = 'none';
+                }
                 return;
             }
 
-            // Render each featured post with the new card design
+            // Render each featured post
             featuredPosts.forEach(post => {
                 featuredContainer.innerHTML += renderFeaturedPost(post);
             });
 
-            // Initialize carousel navigation
-            initializeCarouselNavigation();
+            // Make sure carousel navigation is working
+            setTimeout(() => {
+                if (typeof initCarousel === 'function') {
+                    initCarousel();
+                } else {
+                    initializeCarouselNavigation();
+                }
+            }, 100);
         }
     } catch (error) {
         console.error('Error loading featured posts:', error);
@@ -211,12 +237,12 @@ async function loadFeaturedPosts() {
         const featuredContainer = document.getElementById('featured-posts');
         if (featuredContainer) {
             featuredContainer.innerHTML = `
-                <div class="col-12 text-center py-3">
-                    <div class="alert alert-danger" role="alert">
-                        Failed to load featured posts. Please try again later.
-                    </div>
-                </div>
-            `;
+        <div class="col-12 text-center py-3">
+          <div class="alert alert-danger" role="alert">
+            Failed to load featured posts. Please try again later.
+          </div>
+        </div>
+      `;
         }
     }
 }
@@ -317,7 +343,6 @@ function initializeCarouselNavigation() {
         nextButton.style.opacity = isAtEnd ? '0.5' : '1';
     });
 }
-
 
 // Export functions
 export {

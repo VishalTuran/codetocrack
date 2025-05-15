@@ -30,6 +30,58 @@
 /*=================================================================*/
 /*                      BASE                              
 /*=================================================================*/
+/* Add to the top of your style.css file */
+
+/* Critical Path CSS */
+/* These styles will be loaded first for better performance */
+body {
+  color: #8F9BAD;
+  background-color: #fff;
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #203656;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 20px 0;
+}
+
+a {
+  color: #FE4F70;
+  outline: 0;
+  text-decoration: none;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+a:hover {
+  color: #203656;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Basic layout */
+.container-xl {
+  max-width: 1140px;
+  margin: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* End Critical Path CSS */
+
+
 body {
   color: #8F9BAD;
   background-color: #fff;

@@ -2,6 +2,7 @@
 import { PostManager } from './firebase-integration.js';
 
 // Function to render a single post
+// Update the renderPost function in renderPosts.js to add more SEO attributes
 function renderPost(post, type = 'grid') {
     try {
         const postDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toLocaleDateString('en-US', {
@@ -10,30 +11,23 @@ function renderPost(post, type = 'grid') {
             day: 'numeric'
         });
 
-        // Create proper category link with the category slug
-        const categoryLink = post.category ?
-            `<a class='category-badge position-absolute' href='category.html?category=${post.category}'>${post.category}</a>` :
-            '';
-
-        // For meta list, also ensure category links to the category page
-        const categoryMeta = post.category ?
-            `<li class="list-inline-item"><a href="category.html?category=${post.category}" class="category">${post.category}</a></li>` :
-            '';
+        // Format for structured data - ISO format
+        const isoDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toISOString();
 
         if (type === 'list') {
             return `
-        <article class="post post-list-sm square before-seperator">
+        <article class="post post-list-sm square before-seperator" data-post-id="${post.id}">
           <div class="thumb rounded">
             <a href='blog-single.html?id=${post.id}'>
               <div class="inner">
-                <img src="${post.featuredImage}" alt="${post.title}" />
+                <img src="${post.featuredImage}" alt="${post.title}" loading="lazy" />
               </div>
             </a>
           </div>
           <div class="details clearfix">
             <h6 class="post-title my-0"><a href='blog-single.html?id=${post.id}'>${post.title}</a></h6>
             <ul class="meta list-inline mt-1 mb-0">
-              <li class="list-inline-item">${postDate}</li>
+              <li class="list-inline-item"><time datetime="${isoDate}">${postDate}</time></li>
               ${post.category ? `<li class="list-inline-item"><a href="category.html?category=${post.category}">${post.category}</a></li>` : ''}
             </ul>
           </div>
@@ -41,42 +35,42 @@ function renderPost(post, type = 'grid') {
       `;
         }
 
-        // Grid type post
+        // Grid type post with structured data attributes
         return `
       <div class="col-sm-6">
-        <article class="post post-grid rounded bordered">
+        <article class="post post-grid rounded bordered" data-post-id="${post.id}">
           <div class="thumb top-rounded">
-            ${categoryLink}
+            ${post.category ? `<a class='category-badge position-absolute' href='category.html?category=${post.category}'>${post.category}</a>` : ''}
             <span class="post-format">
               <i class="icon-picture"></i>
             </span>
             <a href='blog-single.html?id=${post.id}'>
               <div class="inner">
-                <img src="${post.featuredImage}" alt="${post.title}" />
+                <img src="${post.featuredImage}" alt="${post.title}" loading="lazy" />
               </div>
             </a>
           </div>
           <div class="details">
-            <ul class="meta list-inline mb-0">
+            <ul class="meta list-inline mb-0" itemscope itemtype="https://schema.org/Person">
               <li class="list-inline-item">
-                <a href="#"><img src="${post.authorImg || 'images/other/author-sm.png'}" class="author" alt="${post.author}" />${post.author}</a>
+                <a href="#" itemprop="url"><img src="${post.authorImg || 'images/other/author-sm.png'}" class="author" alt="${post.author}" itemprop="image" /><span itemprop="name">${post.author}</span></a>
               </li>
-              ${categoryMeta}
-              <li class="list-inline-item">${postDate}</li>
+              ${post.category ? `<li class="list-inline-item"><a href="category.html?category=${post.category}" class="category">${post.category}</a></li>` : ''}
+              <li class="list-inline-item"><time datetime="${isoDate}">${postDate}</time></li>
             </ul>
             <h5 class="post-title mb-3 mt-3"><a href='blog-single.html?id=${post.id}'>${post.title}</a></h5>
             <p class="excerpt mb-0">${post.excerpt}</p>
           </div>
           <div class="post-bottom clearfix d-flex align-items-center">
             <div class="social-share me-auto">
-              <button class="toggle-button icon-share"></button>
+              <button class="toggle-button icon-share" aria-label="Share this post"></button>
               <ul class="icons list-unstyled list-inline mb-0">
-                <li class="list-inline-item"><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                <li class="list-inline-item"><a href="#"><i class="fab fa-twitter"></i></a></li>
-                <li class="list-inline-item"><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
-                <li class="list-inline-item"><a href="#"><i class="fab fa-pinterest"></i></a></li>
-                <li class="list-inline-item"><a href="#"><i class="fab fa-telegram-plane"></i></a></li>
-                <li class="list-inline-item"><a href="#"><i class="far fa-envelope"></i></a></li>
+                <li class="list-inline-item"><a href="#" data-platform="facebook" aria-label="Share on Facebook"><i class="fab fa-facebook-f"></i></a></li>
+                <li class="list-inline-item"><a href="#" data-platform="twitter" aria-label="Share on Twitter"><i class="fab fa-twitter"></i></a></li>
+                <li class="list-inline-item"><a href="#" data-platform="linkedin" aria-label="Share on LinkedIn"><i class="fab fa-linkedin-in"></i></a></li>
+                <li class="list-inline-item"><a href="#" data-platform="pinterest" aria-label="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li>
+                <li class="list-inline-item"><a href="#" data-platform="telegram" aria-label="Share on Telegram"><i class="fab fa-telegram-plane"></i></a></li>
+                <li class="list-inline-item"><a href="#" data-platform="email" aria-label="Share via Email"><i class="far fa-envelope"></i></a></li>
               </ul>
             </div>
             <div class="more-button float-end">

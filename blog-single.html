@@ -1,12 +1,29 @@
-<!-- Update blog-single.html to use sidebar.js -->
 <!DOCTYPE html>
 <html lang="en-US">
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<!-- Dynamic Title and Meta Tags (to be populated by JavaScript) -->
 	<title>Blog Post - Code to Crack</title>
-	<meta name="description" content="Code to Crack - Compile Confidence, Execute Success">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="description" content="Detailed article on programming concepts and techniques">
+
+	<!-- Open Graph / Social Media Meta Tags -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://codetocrack.com/blog-single.html">
+	<meta property="og:title" content="Blog Post - Code to Crack">
+	<meta property="og:description" content="Detailed article on programming concepts and techniques">
+	<meta property="og:image" content="https://codetocrack.com/images/posts/post-featured.jpg">
+
+	<!-- Twitter Card Meta Tags -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:url" content="https://codetocrack.com/blog-single.html">
+	<meta name="twitter:title" content="Blog Post - Code to Crack">
+	<meta name="twitter:description" content="Detailed article on programming concepts and techniques">
+	<meta name="twitter:image" content="https://codetocrack.com/images/posts/post-featured.jpg">
+
+	<!-- Viewport setting for responsive design -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.png">
 
 	<!-- STYLES -->
@@ -176,7 +193,39 @@
 <script type="module" src="js/renderPosts.js"></script>
 <script type="module" src="js/sidebar.js"></script>
 <script type="module" src="js/single-post.js"></script>
+
+<script type="module" src="js/seo-utils.js"></script>
+<script type="module" src="js/seo-analytics.js"></script>
+<script type="module" src="js/script.js"></script>
 <script type="module" src="js/simplified-social-share.js"></script>
+
+<script type="application/ld+json" id="post-structured-data">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"headline": "Post Title",
+		"description": "Post description will be filled dynamically",
+		"image": "https://codetocrack.com/images/posts/post-featured.jpg",
+		"author": {
+			"@type": "Person",
+			"name": "Author Name"
+		},
+		"publisher": {
+			"@type": "Organization",
+			"name": "Code to Crack",
+			"logo": {
+				"@type": "ImageObject",
+				"url": "https://codetocrack.com/images/logo.png"
+			}
+		},
+		"datePublished": "",
+		"dateModified": "",
+		"mainEntityOfPage": {
+			"@type": "WebPage",
+			"@id": "https://codetocrack.com/blog-single.html"
+		}
+	}
+</script>
 
 
 <script>

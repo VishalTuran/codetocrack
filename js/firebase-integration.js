@@ -23,16 +23,11 @@ import {
 } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js';
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+import { getConfig } from './config.js';
+
 
 // Initialize Firebase directly in this module
-const firebaseConfig = {
-  apiKey: "AIzaSyDEc66AMM5lp-itFWsXQXYfR0QqxU8qLdE",
-  authDomain: "codetocrack-23.firebaseapp.com",
-  projectId: "codetocrack-23",
-  storageBucket: "codetocrack-23.firebasestorage.app",
-  messagingSenderId: "651566177449",
-  appId: "1:651566177449:web:9cfca9ab897672fb52ddb8"
-};
+const firebaseConfig = getConfig()
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

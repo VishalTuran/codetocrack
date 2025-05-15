@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Exclude admin panel and internal files
+Disallow: /admin-panel.html
+Disallow: /js/firebase-integration.js
+Disallow: /js/admin-panel.js
+
+# Sitemap location
+Sitemap: https://codetocrack.com/sitemap.xml

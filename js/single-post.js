@@ -7,6 +7,117 @@ function getPostIdFromUrl() {
     return urlParams.get('id');
 }
 
+function updateSEOMetaTags(post) {
+    try {
+        // Update page title
+        document.title = `${post.title} - Code to Crack`;
+
+        // Update meta description
+        const metaDescription = document.querySelector('meta[name="description"]');
+        if (metaDescription) {
+            metaDescription.content = post.excerpt;
+        }
+
+        // Update canonical URL
+        let canonicalLink = document.querySelector('link[rel="canonical"]');
+        if (!canonicalLink) {
+            canonicalLink = document.createElement('link');
+            canonicalLink.rel = 'canonical';
+            document.head.appendChild(canonicalLink);
+        }
+        canonicalLink.href = `https://codetocrack.com/blog-single.html?id=${post.id}`;
+
+        // Update Open Graph meta tags
+        updateMetaTag('og:title', post.title);
+        updateMetaTag('og:description', post.excerpt);
+        updateMetaTag('og:url', `https://codetocrack.com/blog-single.html?id=${post.id}`);
+        if (post.featuredImage) {
+            updateMetaTag('og:image', post.featuredImage);
+        }
+
+        // Update Twitter Card meta tags
+        updateMetaTag('twitter:title', post.title);
+        updateMetaTag('twitter:description', post.excerpt);
+        updateMetaTag('twitter:url', `https://codetocrack.com/blog-single.html?id=${post.id}`);
+        if (post.featuredImage) {
+            updateMetaTag('twitter:image', post.featuredImage);
+        }
+
+        // Update Schema.org structured data
+        updateStructuredData(post);
+
+    } catch (error) {
+        console.error('Error updating SEO meta tags:', error);
+    }
+}
+
+// Helper function to update meta tags
+function updateMetaTag(property, content) {
+    let metaTag = document.querySelector(`meta[property="${property}"]`);
+    if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('property', property);
+        document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
+}
+
+// Update structured data JSON-LD
+function updateStructuredData(post) {
+    const structuredDataScript = document.getElementById('post-structured-data');
+    if (!structuredDataScript) return;
+
+    // Parse existing JSON
+    let structuredData = {};
+    try {
+        structuredData = JSON.parse(structuredDataScript.textContent);
+    } catch (e) {
+        console.error('Error parsing structured data:', e);
+        return;
+    }
+
+    // Update with post data
+    structuredData.headline = post.title;
+    structuredData.description = post.excerpt;
+    if (post.featuredImage) {
+        structuredData.image = post.featuredImage;
+    }
+    if (post.author) {
+        structuredData.author.name = post.author;
+    }
+
+    // Update dates
+    if (post.publishDate) {
+        let publishDate;
+        if (post.publishDate.seconds) {
+            publishDate = new Date(post.publishDate.seconds * 1000);
+        } else {
+            publishDate = new Date(post.publishDate);
+        }
+        structuredData.datePublished = publishDate.toISOString();
+    }
+
+    if (post.lastUpdated) {
+        let modifiedDate;
+        if (post.lastUpdated.seconds) {
+            modifiedDate = new Date(post.lastUpdated.seconds * 1000);
+        } else {
+            modifiedDate = new Date(post.lastUpdated);
+        }
+        structuredData.dateModified = modifiedDate.toISOString();
+    } else if (post.publishDate) {
+        // If no update date, use publish date
+        structuredData.dateModified = structuredData.datePublished;
+    }
+
+    // Update mainEntityOfPage id
+    structuredData.mainEntityOfPage["@id"] = `https://codetocrack.com/blog-single.html?id=${post.id}`;
+
+    // Update the script content
+    structuredDataScript.textContent = JSON.stringify(structuredData, null, 2);
+}
+
+
 // Load and render post content
 async function loadPost() {
     const postId = getPostIdFromUrl();
@@ -19,6 +130,9 @@ async function loadPost() {
     try {
         showLoader();
         const post = await PostManager.getPost(postId);
+
+        // Add this line to update SEO meta tags
+        updateSEOMetaTags(post);
 
         // Update page title
         document.title = `${post.title} - Code to Crack`;

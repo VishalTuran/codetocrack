@@ -51,3 +51,4 @@ async function createAdmin(username, password) {
 window.createAdmin = createAdmin;
 
 console.log('Admin setup script loaded. Use window.createAdmin(username, password) to create an admin user.');
+console.log('Example: window.createAdmin("admin", "password")');

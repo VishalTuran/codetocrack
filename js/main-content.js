@@ -82,111 +82,96 @@ function initCarousel() {
 }
 
 // Initialize pagination
+// In main-content.js, modify the initializePagination function:
+
+// In main-content.js, modify the initializePagination function:
+
 async function initializePagination() {
     try {
-        // Get total post count from Firebase or use a function to calculate it
         const totalPosts = await getTotalPostCount();
-
-        // Calculate number of pages based on posts per page
-        const postsPerPage = 10; // This should match your loadPosts pageSize parameter
+        const postsPerPage = 10;
         const totalPages = Math.max(1, Math.ceil(totalPosts / postsPerPage));
 
         console.log(`Pagination: Total posts: ${totalPosts}, Posts per page: ${postsPerPage}, Total pages: ${totalPages}`);
 
-        // Get pagination element
         const paginationElement = document.querySelector('.pagination');
+        if (!paginationElement) return;
 
-        if (paginationElement) {
-            // Clear existing pagination
-            paginationElement.innerHTML = '';
+        // Clear existing pagination
+        paginationElement.innerHTML = '';
 
-            // Hide pagination if only one page exists
-            if (totalPages <= 1) {
-                paginationElement.style.display = 'none';
-                return;
-            } else {
-                paginationElement.style.display = 'flex';
+        // Hide pagination if only one page exists
+        if (totalPages <= 1) {
+            paginationElement.style.display = 'none';
+            return;
+        } else {
+            paginationElement.style.display = 'flex';
+        }
+
+        // Get current page from URL if available, otherwise default to 1
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentPage = parseInt(urlParams.get('page')) || 1;
+
+        // Make sure currentPage is valid
+        if (currentPage < 1 || currentPage > totalPages) {
+            currentPage = 1;
+        }
+
+        // Create pagination items
+        for (let i = 1; i <= totalPages; i++) {
+            const pageItem = document.createElement('li');
+            pageItem.className = `page-item${i === currentPage ? ' active' : ''}`;
+
+            const pageLink = document.createElement('a'); // Always create an 'a' element for all pages
+            pageLink.className = 'page-link';
+            pageLink.textContent = i;
+            pageLink.dataset.page = i;
+            pageLink.href = `?page=${i}`;  // Add proper URL with page parameter
+
+            if (i === currentPage) {
+                pageItem.setAttribute('aria-current', 'page');
             }
 
-            let currentPage = 1;
+            // Add click event to ALL page links including page 1
+            pageLink.addEventListener('click', async (e) => {
+                e.preventDefault();
 
-            // Create pagination items
-            for (let i = 1; i <= totalPages; i++) {
-                const pageItem = document.createElement('li');
-                pageItem.className = 'page-item' + (i === currentPage ? ' active' : '');
+                const pageNum = parseInt(e.target.dataset.page);
 
-                const pageLink = document.createElement(i === currentPage ? 'span' : 'a');
-                pageLink.className = 'page-link';
-                pageLink.textContent = i;
-                pageLink.dataset.page = i;
+                if (!isNaN(pageNum)) {
+                    console.log(`Navigating to page ${pageNum}`); // Debug log
 
-                if (i !== currentPage) {
-                    pageLink.href = '#';
-                    pageLink.addEventListener('click', async (e) => {
-                        e.preventDefault();
-
-                        // Get page number from link
-                        const pageNum = parseInt(e.target.dataset.page);
-
-                        if (!isNaN(pageNum) && pageNum !== currentPage) {
-                            currentPage = pageNum;
-
-                            // Update active state
-                            updatePaginationState(currentPage);
-
-                            // Load posts for current page
-                            await loadPosts({
-                                page: currentPage,
-                                pageSize: postsPerPage,
-                                orderField: 'publishDate',
-                                orderDirection: 'desc'
-                            });
-
-                            // Scroll to top of posts section
-                            document.querySelector('#main-posts-container').scrollIntoView({
-                                behavior: 'smooth'
-                            });
-                        }
-                    });
-                } else {
-                    pageItem.setAttribute('aria-current', 'page');
-                }
-
-                pageItem.appendChild(pageLink);
-                paginationElement.appendChild(pageItem);
-            }
-
-            // Add event listener for pagination
-            paginationElement.addEventListener('click', async (e) => {
-                const target = e.target.closest('.page-link');
-
-                if (target && !target.parentNode.classList.contains('active')) {
-                    e.preventDefault();
-
-                    // Get page number from data attribute
-                    const pageNum = parseInt(target.dataset.page);
-
-                    if (!isNaN(pageNum) && pageNum !== currentPage) {
-                        currentPage = pageNum;
-
-                        // Update active state
-                        updatePaginationState(currentPage);
-
-                        // Load posts for current page
-                        await loadPosts({
-                            page: currentPage,
-                            pageSize: postsPerPage,
-                            orderField: 'publishDate',
-                            orderDirection: 'desc'
-                        });
-
-                        // Scroll to top of posts section
-                        document.querySelector('#main-posts-container').scrollIntoView({
-                            behavior: 'smooth'
-                        });
+                    // Always update URL
+                    if (pageNum === 1) {
+                        // For page 1, remove the page parameter for cleaner URLs
+                        window.history.pushState({}, '', window.location.pathname);
+                    } else {
+                        window.history.pushState({}, '', `?page=${pageNum}`);
                     }
+
+                    // Update currentPage
+                    currentPage = pageNum;
+
+                    // Update active state in pagination
+                    updatePaginationState(currentPage);
+
+                    // Load posts for the selected page
+                    await loadPosts({
+                        page: currentPage,
+                        pageSize: postsPerPage,
+                        orderField: 'publishDate',
+                        orderDirection: 'desc'
+                    });
+
+                    // Scroll to top of posts section
+                    document.querySelector('#main-posts-container').scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 }
             });
+
+            pageItem.appendChild(pageLink);
+            paginationElement.appendChild(pageItem);
         }
     } catch (error) {
         console.error('Error initializing pagination:', error);
@@ -211,35 +196,23 @@ async function getTotalPostCount() {
 
 // Update pagination state
 function updatePaginationState(activePage) {
-    const pageItems = document.querySelectorAll('.page-item');
+    const pageItems = document.querySelectorAll('.pagination .page-item');
+
+    console.log(`Updating pagination state, active page: ${activePage}`); // Debug log
 
     pageItems.forEach(item => {
         const link = item.querySelector('.page-link');
+        if (!link) return;
+
         const pageNum = parseInt(link.dataset.page);
+        if (isNaN(pageNum)) return;
 
         if (pageNum === activePage) {
             item.classList.add('active');
             item.setAttribute('aria-current', 'page');
-            if (link.tagName.toLowerCase() === 'a') {
-                // Convert a to span for active page
-                const span = document.createElement('span');
-                span.className = 'page-link';
-                span.textContent = link.textContent;
-                span.dataset.page = link.dataset.page;
-                item.replaceChild(span, link);
-            }
         } else {
             item.classList.remove('active');
             item.removeAttribute('aria-current');
-            if (link.tagName.toLowerCase() === 'span') {
-                // Convert span to a for inactive pages
-                const a = document.createElement('a');
-                a.className = 'page-link';
-                a.textContent = link.textContent;
-                a.dataset.page = link.dataset.page;
-                a.href = '#';
-                item.replaceChild(a, link);
-            }
         }
     });
 }

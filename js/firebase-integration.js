@@ -280,9 +280,10 @@ class PostManager {
 
 
   // Get all posts with pagination and filtering
+  // In firebase-integration.js, ensure the getPosts method handles pagination correctly
+  // In firebase-integration.js, ensure the getPosts method handles pagination correctly
   static async getPosts(options = {}) {
     try {
-
       const {
         page = 1,
         pageSize = 10,
@@ -295,6 +296,8 @@ class PostManager {
         featured = null,
         search = null
       } = options;
+
+      console.log(`Fetching posts for page ${page}, pageSize ${pageSize}`); // Add for debugging
 
       let constraints = [];
 
@@ -316,29 +319,38 @@ class PostManager {
 
       constraints.push(orderBy(orderField, orderDirection));
 
-      // Apply pagination
-      const skip = (page - 1) * pageSize;
-      constraints.push(firestoreLimit(pageSize));
+      // Calculate the number of documents to skip
+      // For Firebase, we need to get all documents and skip manually
+      // since Firestore doesn't have a skip/offset parameter
+
+      // For better performance in a real app, consider implementing cursor-based pagination
+      // Here, we're using a simple approach for clarity
 
       const q = firestoreQuery(collection(db, collections.posts), ...constraints);
       const querySnapshot = await getDocs(q);
-      const posts = [];
 
+      const allPosts = [];
       querySnapshot.forEach((doc) => {
+        // Filter for search term if provided
         const post = {
           id: doc.id,
           ...doc.data()
         };
 
-        // If search term is provided, filter client-side
         if (search && !this.postMatchesSearch(post, search)) {
           return;
         }
 
-        posts.push(post);
+        allPosts.push(post);
       });
 
-      return posts;
+      // Manual pagination
+      const skip = (page - 1) * pageSize;
+      const end = skip + pageSize;
+
+      console.log(`Total posts: ${allPosts.length}, skipping ${skip}, taking ${pageSize}, returning ${Math.min(end, allPosts.length) - skip} posts`); // Add for debugging
+
+      return allPosts.slice(skip, end);
     } catch (error) {
       console.error('Error getting posts:', error);
       return [];

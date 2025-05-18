@@ -143,10 +143,15 @@ function renderFeaturedPost(post) {
 }
 
 // Load and render posts
+// In renderPosts.js, ensure loadPosts properly handles pagination
+// In renderPosts.js, ensure loadPosts properly handles pagination
 async function loadPosts(options = {}) {
     try {
         showLoader();
+        console.log('Loading posts with options:', options); // Add this for debugging
+
         const posts = await PostManager.getPosts(options);
+        console.log(`Loaded ${posts.length} posts for page ${options.page || 1}`); // Add this for debugging
 
         // Clear existing content
         const mainContainer = document.getElementById('main-posts-container');

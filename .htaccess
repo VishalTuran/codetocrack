@@ -1,0 +1,6 @@
+# Redirect admin-panel.html to admin-login.html as an additional security measure
+RewriteEngine On
+RewriteRule ^admin-panel\.html$ admin-login.html [R=302,L]
+
+# Prevent directory listing
+Options -Indexes

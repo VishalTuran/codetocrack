@@ -12,6 +12,36 @@
     <!-- TinyMCE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.6.0/tinymce.min.js"></script>
 
+    <!-- Add this just before your other scripts -->
+    <script type="module">
+        // Check if logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            if (isLoggedIn !== 'true') {
+                window.location.href = 'admin-login.html';
+            }
+
+            // Show admin username if available
+            const adminUsername = sessionStorage.getItem('adminUsername');
+            if (adminUsername) {
+                const usernameElement = document.getElementById('admin-username');
+                if (usernameElement) {
+                    usernameElement.textContent = adminUsername;
+                }
+            }
+
+            // Add logout functionality
+            const logoutButton = document.getElementById('logout-button');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    sessionStorage.removeItem('adminLoggedIn');
+                    sessionStorage.removeItem('adminUsername');
+                    window.location.href = 'admin-login.html';
+                });
+            }
+        });
+    </script>
+
     <!-- Custom CSS -->
     <style>
         /* Main Sidebar Styles */
@@ -204,6 +234,16 @@
                         </a>
                     </li>
                 </ul>
+                <div class="p-3 mt-auto">
+                    <div class="mb-3 text-white">
+                        <small>Logged in as:</small>
+                        <div id="admin-username" class="text-truncate">Admin</div>
+                    </div>
+                    <button id="logout-button" class="btn btn-outline-light btn-sm w-100">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Logout
+                    </button>
+                </div>
                 <hr>
                 <div class="p-3">
                     <a href="index.html" class="btn btn-outline-light btn-sm w-100">

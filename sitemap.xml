@@ -1,220 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
   <url>
-    <loc>https://codetocrack.com/</loc>
+    <loc>https://codetocrack.dev/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/category.html?category=data-structure&amp;subcategory=stacks</loc>
+    <loc>https://codetocrack.dev/category.html?category=data-structure&amp;subcategory=stacks</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/category.html?category=data-structure&amp;subcategory=arrays</loc>
+    <loc>https://codetocrack.dev/category.html?category=data-structure&amp;subcategory=arrays</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/category.html?category=data-structure&amp;subcategory=linked-list</loc>
+    <loc>https://codetocrack.dev/category.html?category=data-structure&amp;amp;subcategory=linked-list</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/category.html?category=data-structure&amp;subcategory=trees</loc>
+    <loc>https://codetocrack.dev/category.html?category=data-structure&amp;amp;subcategory=trees</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/category.html?category=system-design</loc>
+    <loc>https://codetocrack.dev/category.html?category=system-design</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/category.html?category=system-design&amp;subcategory=hld</loc>
+    <loc>https://codetocrack.dev/category.html?category=system-design&amp;amp;subcategory=hld</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/category.html?category=system-design&amp;subcategory=lld</loc>
+    <loc>https://codetocrack.dev/category.html?category=system-design&amp;amp;subcategory=lld</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=yV9uuMXmuzjVq3btJ3Ci</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=yV9uuMXmuzjVq3btJ3Ci</loc>
     <lastmod>2025-05-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=5FGh1QTh9QxfDR5NJTQ9</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=5FGh1QTh9QxfDR5NJTQ9</loc>
     <lastmod>2025-05-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=cLKqzrBMDvJ11uy6EuUg</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=cLKqzrBMDvJ11uy6EuUg</loc>
     <lastmod>2025-05-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=WzB3Jp50zsf4MUCcpj2b</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=WzB3Jp50zsf4MUCcpj2b</loc>
     <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=VYUP96XgVssENdE5ZH9L</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=VYUP96XgVssENdE5ZH9L</loc>
     <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=8tGGCQnIFBlZ73LrBr18</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=8tGGCQnIFBlZ73LrBr18</loc>
     <lastmod>2025-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=dyJd2YYCSqqsJbkHDIn4</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=dyJd2YYCSqqsJbkHDIn4</loc>
     <lastmod>2025-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=zg2qhtU5scPaL6iVNRTz</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=zg2qhtU5scPaL6iVNRTz</loc>
     <lastmod>2025-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=kMSbSdb7sUbxh87R4zio</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=kMSbSdb7sUbxh87R4zio</loc>
     <lastmod>2025-05-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=oAKmi6pM5bfhZoeaRvEE</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=oAKmi6pM5bfhZoeaRvEE</loc>
     <lastmod>2025-05-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=YPq6y501UOUPPF3fv4Er</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=YPq6y501UOUPPF3fv4Er</loc>
     <lastmod>2025-05-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=5DJ1K0YNoDGvkmIyKXqq</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=5DJ1K0YNoDGvkmIyKXqq</loc>
     <lastmod>2025-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=FKSirX22YwGEhtX6puvh</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=FKSirX22YwGEhtX6puvh</loc>
     <lastmod>2025-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=kxTVlrCM3gsExTP0vIb0</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=kxTVlrCM3gsExTP0vIb0</loc>
     <lastmod>2025-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=1O9Cwoc9nvUrBUloxJqw</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=1O9Cwoc9nvUrBUloxJqw</loc>
     <lastmod>2025-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=UIaPzFaa0bdNZ4wz4p4B</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=UIaPzFaa0bdNZ4wz4p4B</loc>
     <lastmod>2025-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=5faXffcfWl9x0HhM6MaH</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=5faXffcfWl9x0HhM6MaH</loc>
     <lastmod>2025-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=3gOANFfLpaSyuj7TjLHn</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=3gOANFfLpaSyuj7TjLHn</loc>
     <lastmod>2025-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=TwUOgeLOMtZzjMV4yvXN</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=TwUOgeLOMtZzjMV4yvXN</loc>
     <lastmod>2025-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=RNdGahAajGwaMGK2bxxp</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=RNdGahAajGwaMGK2bxxp</loc>
     <lastmod>2025-05-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=DOtveLp5sj5zRmSyBMkA</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=DOtveLp5sj5zRmSyBMkA</loc>
     <lastmod>2025-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=hqNhTx3ODNT7wFzVKe06</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=hqNhTx3ODNT7wFzVKe06</loc>
     <lastmod>2025-05-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=wzMyBLlbtzwyspmM1AfY</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=wzMyBLlbtzwyspmM1AfY</loc>
     <lastmod>2025-05-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://codetocrack.com/blog-single.html?id=m13GuWM4bRCzsw9v8bNV</loc>
+    <loc>https://codetocrack.dev/blog-single.html?id=m13GuWM4bRCzsw9v8bNV</loc>
     <lastmod>2025-05-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-
 </urlset>

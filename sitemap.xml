@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://codetocrack.com/index.html</loc>
+    <loc>https://codetocrack.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://codetocrack.com/search.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://codetocrack.com/category.html?category=data-structure</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://codetocrack.com/category.html?category=data-structure&amp;subcategory=stacks</loc>
@@ -26,12 +16,12 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://codetocrack.com/category.html?category=data-structure&amp;subcategory=linked-list</loc>
+    <loc>https://codetocrack.com/category.html?category=data-structure&amp;amp;subcategory=linked-list</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://codetocrack.com/category.html?category=data-structure&amp;subcategory=trees</loc>
+    <loc>https://codetocrack.com/category.html?category=data-structure&amp;amp;subcategory=trees</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -41,12 +31,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://codetocrack.com/category.html?category=system-design&amp;subcategory=hld</loc>
+    <loc>https://codetocrack.com/category.html?category=system-design&amp;amp;subcategory=hld</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://codetocrack.com/category.html?category=system-design&amp;subcategory=lld</loc>
+    <loc>https://codetocrack.com/category.html?category=system-design&amp;amp;subcategory=lld</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

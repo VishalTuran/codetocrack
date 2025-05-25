@@ -10,6 +10,9 @@ import { generateSitemapXML } from './seo-utils.js';
 
 // Main function to generate sitemap
 async function generateSitemap() {
+
+    console.log('Hello World!');
+
     try {
         console.log("Starting sitemap generation...");
 

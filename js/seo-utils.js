@@ -209,7 +209,7 @@ function generateSitemapXML(posts, categories) {
                 category.subcategories.forEach(subcategory => {
                     sitemap += `
   <url>
-    <loc>${SITE_URL}/category.html?category=${category.slug}&subcategory=${subcategory.slug}</loc>
+    <loc>${SITE_URL}/category.html?category=${category.slug}&amp;subcategory=${subcategory.slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`;

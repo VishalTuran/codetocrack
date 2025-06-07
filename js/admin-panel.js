@@ -1,4 +1,4 @@
-// admin-panel.js - Main JavaScript for the admin panel
+// admin-panel.js - Updated with slug support
 import { PostManager, CategoryManager, CommentManager, NewsletterManager, ActivityManager } from './firebase-integration.js';
 
 // Initialize the admin panel when the document is loaded
@@ -157,6 +157,7 @@ function initializeEditor() {
             editor.on('init', function() {
                 console.log("TinyMCE initialized successfully");
                 setupTitleListener();
+                setupSlugPreview(); // Add slug preview functionality
                 setupFeaturedImage();
                 setupTagsInput();
                 setupStatusChange();
@@ -183,8 +184,7 @@ function initializeEditor() {
                     throw new Error('Uploaded URL is invalid or empty');
                 }
 
-
-
+                success(url);
             } catch (err) {
                 console.error("TinyMCE upload handler error:", err);
                 failure(err.message || "Image upload failed");
@@ -300,7 +300,7 @@ function formatActivityAction(action) {
         .join(' ');
 }
 
-// Posts management
+// Posts management - UPDATED with slug support
 async function loadPosts() {
     try {
         console.log("Loading posts table");
@@ -312,7 +312,7 @@ async function loadPosts() {
         tableBody.innerHTML = '';
 
         if (!posts || posts.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No posts found</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No posts found</td></tr>';
             return;
         }
 
@@ -326,24 +326,44 @@ async function loadPosts() {
                 date = 'Unknown';
             }
 
+            // Generate the view URL - use slug if available, fallback to ID
+            const viewUrl = post.slug ?
+                `blog-single.html?slug=${post.slug}` :
+                `blog-single.html?id=${post.id}`;
+
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td class="content-preview">${post.title}</td>
+                <td class="content-preview">
+                    <div>
+                        <strong>${post.title}</strong>
+                        ${post.slug ? `<br><small class="text-muted">/${post.slug}</small>` : ''}
+                    </div>
+                </td>
                 <td>${post.category || 'Uncategorized'}</td>
                 <td>${date}</td>
                 <td>${post.views || 0}</td>
                 <td><span class="badge bg-${getStatusColor(post.status)}">${post.status || 'published'}</span></td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary edit-post" data-id="${post.id}">
-                        <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-post" data-id="${post.id}">
-                        <i class="fas fa-trash me-1"></i> Delete
-                    </button>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-outline-info view-post" data-url="${viewUrl}" title="View Post">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary edit-post" data-id="${post.id}" title="Edit Post">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-post" data-id="${post.id}" title="Delete Post">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </td>
             `;
 
             // Attach event listeners
+            row.querySelector('.view-post').addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                window.open(url, '_blank');
+            });
+
             row.querySelector('.edit-post').addEventListener('click', function() {
                 editPost(post.id);
             });
@@ -362,7 +382,7 @@ async function loadPosts() {
     }
 }
 
-// New post form
+// New post form - UPDATED with slug support
 function initializeNewPostForm() {
     const form = document.getElementById('new-post-form');
 
@@ -450,18 +470,21 @@ function initializeNewPostForm() {
 
                 // Create or update post
                 let message;
+                let newPostId;
                 if (postId) {
                     // Update existing post
                     await PostManager.updatePost(postId, postData);
+                    newPostId = postId;
                     message = `Post ${formatStatus(postData.status)} successfully!`;
                 } else {
                     // Create new post
-                    await PostManager.createPost(postData);
+                    newPostId = await PostManager.createPost(postData);
                     message = `Post ${formatStatus(postData.status)} successfully!`;
                 }
 
-                // Show success message
-                showNotification(message, 'success');
+                // Show success message with option to view post
+                const successMessage = `${message} <a href="#" onclick="viewPostAfterSave('${newPostId}')" class="alert-link">View Post</a>`;
+                showNotification(successMessage, 'success');
 
                 // Reset form
                 resetPostForm(form);
@@ -489,6 +512,89 @@ function initializeNewPostForm() {
     }
 }
 
+// NEW: View post after save
+async function viewPostAfterSave(postId) {
+    try {
+        // Get the post to find its slug
+        const post = await PostManager.getPost(postId);
+        const viewUrl = post.slug ?
+            `blog-single.html?slug=${post.slug}` :
+            `blog-single.html?id=${post.id}`;
+
+        window.open(viewUrl, '_blank');
+    } catch (error) {
+        console.error('Error viewing post:', error);
+        // Fallback to ID-based URL
+        window.open(`blog-single.html?id=${postId}`, '_blank');
+    }
+}
+
+// Setup slug preview functionality - NEW
+function setupSlugPreview() {
+    const titleInput = document.getElementById('post-title');
+    const slugPreview = document.getElementById('post-slug-preview');
+
+    if (titleInput && !slugPreview) {
+        // Create slug preview element
+        const slugContainer = document.createElement('div');
+        slugContainer.className = 'slug-preview mt-2';
+        slugContainer.innerHTML = `
+            <small class="text-muted">
+                URL: <span class="fw-bold">/blog-single.html?slug=<span id="post-slug-preview">your-post-title</span></span>
+                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="edit-slug-btn" style="padding: 0.1rem 0.3rem; font-size: 0.7rem;">Edit</button>
+            </small>
+            <div id="slug-edit-container" class="mt-2" style="display: none;">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">/blog-single.html?slug=</span>
+                    <input type="text" class="form-control" id="post-slug-edit" placeholder="your-post-title">
+                    <button class="btn btn-outline-success" type="button" id="save-slug-btn">Save</button>
+                    <button class="btn btn-outline-secondary" type="button" id="cancel-slug-btn">Cancel</button>
+                </div>
+            </div>
+        `;
+
+        titleInput.parentNode.insertBefore(slugContainer, titleInput.nextSibling);
+
+        // Auto-update slug preview as user types title
+        titleInput.addEventListener('input', function() {
+            const slug = generateSlugPreview(this.value);
+            document.getElementById('post-slug-preview').textContent = slug || 'your-post-title';
+        });
+
+        // Edit slug functionality
+        document.getElementById('edit-slug-btn').addEventListener('click', function() {
+            const currentSlug = document.getElementById('post-slug-preview').textContent;
+            document.getElementById('post-slug-edit').value = currentSlug;
+            document.getElementById('slug-edit-container').style.display = 'block';
+            this.style.display = 'none';
+        });
+
+        // Save custom slug
+        document.getElementById('save-slug-btn').addEventListener('click', function() {
+            const newSlug = generateSlugPreview(document.getElementById('post-slug-edit').value);
+            document.getElementById('post-slug-preview').textContent = newSlug;
+            document.getElementById('slug-edit-container').style.display = 'none';
+            document.getElementById('edit-slug-btn').style.display = 'inline-block';
+        });
+
+        // Cancel slug edit
+        document.getElementById('cancel-slug-btn').addEventListener('click', function() {
+            document.getElementById('slug-edit-container').style.display = 'none';
+            document.getElementById('edit-slug-btn').style.display = 'inline-block';
+        });
+    }
+}
+
+// Generate slug preview (client-side only, for preview purposes)
+function generateSlugPreview(text) {
+    return text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
 // Format status message
 function formatStatus(status) {
     switch(status) {
@@ -499,7 +605,7 @@ function formatStatus(status) {
     }
 }
 
-// Reset post form
+// Reset post form - UPDATED to handle slug preview
 function resetPostForm(form) {
     // Reset standard form fields
     form.reset();
@@ -511,6 +617,24 @@ function resetPostForm(form) {
     const editor = tinymce.get('post-content');
     if (editor) {
         editor.setContent('');
+    }
+
+    // Reset slug preview
+    const slugPreview = document.getElementById('post-slug-preview');
+    if (slugPreview) {
+        slugPreview.textContent = 'your-post-title';
+    }
+
+    // Hide slug edit container
+    const slugEditContainer = document.getElementById('slug-edit-container');
+    if (slugEditContainer) {
+        slugEditContainer.style.display = 'none';
+    }
+
+    // Show edit slug button
+    const editSlugBtn = document.getElementById('edit-slug-btn');
+    if (editSlugBtn) {
+        editSlugBtn.style.display = 'inline-block';
     }
 
     // Reset image preview
@@ -1156,7 +1280,7 @@ async function unsubscribeEmail(email) {
     }
 }
 
-// Setup title listener
+// Setup title listener - UPDATED with slug preview
 function setupTitleListener() {
     const titleInput = document.getElementById('post-title');
     const headerTitle = document.getElementById('header-title');
@@ -1296,7 +1420,7 @@ function setupStatusChange() {
     });
 }
 
-// Preview button
+// Preview button - UPDATED with slug support
 function setupPreviewButton() {
     const previewBtn = document.getElementById('preview-btn');
     if (!previewBtn) return;
@@ -1310,6 +1434,9 @@ function setupPreviewButton() {
         }
 
         const content = editor.getContent();
+
+        // Get the current slug preview for a more accurate preview URL
+        const currentSlug = document.getElementById('post-slug-preview')?.textContent || generateSlugPreview(title);
 
         // Open preview in new window or tab
         const previewWindow = window.open('', '_blank');
@@ -1330,10 +1457,20 @@ function setupPreviewButton() {
                         margin: 0 auto; 
                     }
                     img { max-width: 100%; height: auto; }
+                    .preview-notice {
+                        background: #e3f2fd;
+                        border: 1px solid #2196f3;
+                        border-radius: 4px;
+                        padding: 1rem;
+                        margin-bottom: 2rem;
+                    }
                 </style>
             </head>
             <body>
-                <div class="mb-3 text-muted">Preview Mode</div>
+                <div class="preview-notice">
+                    <strong>📝 Preview Mode</strong><br>
+                    <small>URL will be: <code>blog-single.html?slug=${currentSlug}</code></small>
+                </div>
                 <h1>${title}</h1>
                 <hr>
                 <div class="content">
@@ -1423,7 +1560,7 @@ function getStatusColor(status) {
     }
 }
 
-// Post actions
+// Post actions - UPDATED with slug support
 async function editPost(postId) {
     try {
         console.log("Editing post:", postId);
@@ -1446,6 +1583,12 @@ async function editPost(postId) {
         // Set form values
         document.getElementById('post-title').value = post.title || '';
         document.getElementById('post-excerpt').value = post.excerpt || '';
+
+        // Update slug preview
+        const slugPreview = document.getElementById('post-slug-preview');
+        if (slugPreview && post.slug) {
+            slugPreview.textContent = post.slug;
+        }
 
         // Ensure categories are loaded before setting
         await loadCategoriesDropdown();
@@ -1730,3 +1873,9 @@ window.deleteCategory = deleteCategory;
 window.showNotification = showNotification;
 window.initializeEditor = initializeEditor;
 window.loadCategoriesDropdown = loadCategoriesDropdown;
+window.loadPosts = loadPosts;
+window.loadCategories = loadCategories;
+window.loadComments = loadComments;
+window.loadSubscribers = loadSubscribers;
+window.loadDashboardStats = loadDashboardStats;
+window.viewPostAfterSave = viewPostAfterSave;

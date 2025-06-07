@@ -2,7 +2,6 @@
 import { PostManager } from './firebase-integration.js';
 
 // Function to render a single post
-// Update the renderPost function in renderPosts.js to add more SEO attributes
 function renderPost(post, type = 'grid') {
     try {
         const postDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toLocaleDateString('en-US', {
@@ -14,18 +13,21 @@ function renderPost(post, type = 'grid') {
         // Format for structured data - ISO format
         const isoDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toISOString();
 
+        // Use slug for URL, fallback to ID if no slug
+        const postUrl = post.slug ? `blog-single.html?slug=${post.slug}` : `blog-single.html?id=${post.id}`;
+
         if (type === 'list') {
             return `
         <article class="post post-list-sm square before-seperator" data-post-id="${post.id}">
           <div class="thumb rounded">
-            <a href='blog-single.html?id=${post.id}'>
+            <a href='${postUrl}'>
               <div class="inner">
                 <img src="${post.featuredImage}" alt="${post.title}" loading="lazy" />
               </div>
             </a>
           </div>
           <div class="details clearfix">
-            <h6 class="post-title my-0"><a href='blog-single.html?id=${post.id}'>${post.title}</a></h6>
+            <h6 class="post-title my-0"><a href='${postUrl}'>${post.title}</a></h6>
             <ul class="meta list-inline mt-1 mb-0">
               <li class="list-inline-item"><time datetime="${isoDate}">${postDate}</time></li>
               ${post.category ? `<li class="list-inline-item"><a href="category.html?category=${post.category}">${post.category}</a></li>` : ''}
@@ -35,7 +37,7 @@ function renderPost(post, type = 'grid') {
       `;
         }
 
-        // Grid type post with structured data attributes
+        // Grid type post with slug-based URLs
         return `
       <div class="col-sm-6">
         <article class="post post-grid rounded bordered" data-post-id="${post.id}">
@@ -44,7 +46,7 @@ function renderPost(post, type = 'grid') {
             <span class="post-format">
               <i class="icon-picture"></i>
             </span>
-            <a href='blog-single.html?id=${post.id}'>
+            <a href='${postUrl}'>
               <div class="inner">
                 <img src="${post.featuredImage}" alt="${post.title}" loading="lazy" />
               </div>
@@ -58,7 +60,7 @@ function renderPost(post, type = 'grid') {
               ${post.category ? `<li class="list-inline-item"><a href="category.html?category=${post.category}" class="category">${post.category}</a></li>` : ''}
               <li class="list-inline-item"><time datetime="${isoDate}">${postDate}</time></li>
             </ul>
-            <h5 class="post-title mb-3 mt-3"><a href='blog-single.html?id=${post.id}'>${post.title}</a></h5>
+            <h5 class="post-title mb-3 mt-3"><a href='${postUrl}'>${post.title}</a></h5>
             <p class="excerpt mb-0">${post.excerpt}</p>
           </div>
           <div class="post-bottom clearfix d-flex align-items-center">
@@ -74,7 +76,7 @@ function renderPost(post, type = 'grid') {
               </ul>
             </div>
             <div class="more-button float-end">
-              <a href='blog-single.html?id=${post.id}'><span class="icon-options"></span></a>
+              <a href='${postUrl}'><span class="icon-options"></span></a>
             </div>
           </div>
         </article>
@@ -88,7 +90,6 @@ function renderPost(post, type = 'grid') {
 
 // Function to render featured post
 // Modify the renderFeaturedPost function in renderPosts.js
-
 function renderFeaturedPost(post) {
     try {
         const postDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toLocaleDateString('en-US', {
@@ -111,11 +112,14 @@ function renderFeaturedPost(post) {
             title = title.substring(0, titleMaxLength) + '...';
         }
 
+        // Use slug for URL, fallback to ID if no slug
+        const postUrl = post.slug ? `blog-single.html?slug=${post.slug}` : `blog-single.html?id=${post.id}`;
+
         return `
       <article class="featured-post-card">
         <div class="thumb rounded">
           ${post.category ? `<a class="category-badge position-absolute" href='category.html?category=${post.category}'>${post.category}</a>` : ''}
-          <a href='blog-single.html?id=${post.id}'>
+          <a href='${postUrl}'>
             <div class="inner" style="background-image: url('${post.featuredImage}');"></div>
           </a>
         </div>
@@ -126,11 +130,11 @@ function renderFeaturedPost(post) {
             </li>
             <li class="list-inline-item">${postDate}</li>
           </ul>
-          <h5 class="post-title mb-3 mt-3"><a href='blog-single.html?id=${post.id}'>${title}</a></h5>
+          <h5 class="post-title mb-3 mt-3"><a href='${postUrl}'>${title}</a></h5>
           <p class="excerpt mb-0">${excerpt}</p>
           <div class="post-bottom d-flex align-items-center">
             <div class="more-button">
-              <a href='blog-single.html?id=${post.id}' class="btn btn-default btn-sm">Read More <i class="icon-arrow-right"></i></a>
+              <a href='${postUrl}' class="btn btn-default btn-sm">Read More <i class="icon-arrow-right"></i></a>
             </div>
           </div>
         </div>

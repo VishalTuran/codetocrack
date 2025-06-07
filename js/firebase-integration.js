@@ -52,10 +52,71 @@ const collections = {
 
 // Post Management
 class PostManager {
-  // Create a new post
+  static generateSlug(title) {
+    return title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  }
+
+  static async ensureUniqueSlug(baseSlug, excludeId = null) {
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (true) {
+      // Check if slug exists
+      const existingPost = await this.getPostBySlug(slug);
+
+      if (!existingPost || (excludeId && existingPost.id === excludeId)) {
+        return slug;
+      }
+
+      // If slug exists, append number
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+  }
+
+  static async getPostBySlug(slug) {
+    try {
+      console.log("Getting post by slug:", slug);
+      const q = firestoreQuery(
+          collection(db, collections.posts),
+          where('slug', '==', slug),
+          where('status', '==', 'published')
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        throw new Error('Post not found');
+      }
+
+      const post = {
+        id: querySnapshot.docs[0].id,
+        ...querySnapshot.docs[0].data()
+      };
+
+      // Increment view count
+      await this.incrementViews(post.id);
+
+      console.log("Post retrieved successfully by slug");
+      return post;
+    } catch (error) {
+      console.error('Error getting post by slug:', error);
+      throw error;
+    }
+  }
+
   static async createPost(postData) {
     try {
       console.log("Creating post:", postData.title);
+
+      // Generate unique slug
+      const baseSlug = this.generateSlug(postData.title);
+      const uniqueSlug = await this.ensureUniqueSlug(baseSlug);
 
       // Convert date strings to Firestore timestamps if needed
       let publishDate = postData.publishDate;
@@ -65,6 +126,7 @@ class PostManager {
 
       const postToSave = {
         title: postData.title,
+        slug: uniqueSlug, // Add slug field
         content: postData.content,
         excerpt: postData.excerpt || this.generateExcerpt(postData.content),
         category: postData.category,
@@ -93,7 +155,7 @@ class PostManager {
       // Log activity
       await this.logActivity('post_created', `Post "${postData.title}" created`, docRef.id);
 
-      console.log('Post created with ID:', docRef.id);
+      console.log('Post created with ID:', docRef.id, 'and slug:', uniqueSlug);
       return docRef.id;
     } catch (error) {
       console.error('Error creating post:', error);
@@ -101,7 +163,7 @@ class PostManager {
     }
   }
 
-  // Update an existing post
+  // Update updatePost method to handle slug changes
   static async updatePost(postId, postData) {
     try {
       console.log("Updating post:", postId);
@@ -126,6 +188,13 @@ class PostManager {
         ...postData,
         lastUpdated: new Date()
       };
+
+      // Handle slug update if title changed
+      if (postData.title && postData.title !== currentPost.title) {
+        const baseSlug = this.generateSlug(postData.title);
+        const uniqueSlug = await this.ensureUniqueSlug(baseSlug, postId);
+        updateData.slug = uniqueSlug;
+      }
 
       // Add publishDate if provided
       if (publishDate) {
@@ -159,6 +228,48 @@ class PostManager {
       return postId;
     } catch (error) {
       console.error('Error updating post:', error);
+      throw error;
+    }
+  }
+
+  // Add method to migrate existing posts to have slugs (run once)
+  static async migratePostsToSlugs() {
+    try {
+      console.log("Starting migration to add slugs to existing posts...");
+
+      const q = firestoreQuery(
+          collection(db, collections.posts),
+          where('slug', '==', null) // Only posts without slugs
+      );
+
+      const querySnapshot = await getDocs(q);
+      const posts = [];
+
+      querySnapshot.forEach((doc) => {
+        posts.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+      console.log(`Found ${posts.length} posts to migrate`);
+
+      for (const post of posts) {
+        if (post.title) {
+          const baseSlug = this.generateSlug(post.title);
+          const uniqueSlug = await this.ensureUniqueSlug(baseSlug);
+
+          const postRef = doc(db, collections.posts, post.id);
+          await updateDoc(postRef, { slug: uniqueSlug });
+
+          console.log(`Updated post "${post.title}" with slug: ${uniqueSlug}`);
+        }
+      }
+
+      console.log("Migration completed!");
+      return true;
+    } catch (error) {
+      console.error('Error during migration:', error);
       throw error;
     }
   }

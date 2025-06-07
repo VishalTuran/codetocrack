@@ -1,6 +1,14 @@
 import { PostManager, CommentManager } from './firebase-integration.js';
 import { loadSidebarContent } from './sidebar.js';
 
+function getPostIdentifierFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+        slug: urlParams.get('slug'),
+        id: urlParams.get('id') // Keep as fallback
+    };
+}
+
 // Get post ID from URL
 function getPostIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -120,19 +128,38 @@ function updateStructuredData(post) {
 
 // Load and render post content
 async function loadPost() {
-    const postId = getPostIdFromUrl();
+    const { slug, id } = getPostIdentifierFromUrl();
 
-    if (!postId) {
+    if (!slug && !id) {
         window.location.href = 'index.html';
         return;
     }
 
     try {
         showLoader();
-        const post = await PostManager.getPost(postId);
 
-        // Add this line to update SEO meta tags
+        let post;
+        if (slug) {
+            // Try to get post by slug first
+            post = await PostManager.getPostBySlug(slug);
+        } else {
+            // Fallback to ID-based lookup for old URLs
+            post = await PostManager.getPost(id);
+        }
+
+        // Update SEO meta tags
         updateSEOMetaTags(post);
+
+        // Update canonical URL to use slug
+        const canonicalLink = document.querySelector('link[rel="canonical"]');
+        if (canonicalLink && post.slug) {
+            canonicalLink.href = `https://codetocrack.com/blog-single.html?slug=${post.slug}`;
+        }
+
+        // If we loaded by ID but have a slug, redirect to slug URL
+        if (id && !slug && post.slug) {
+            window.history.replaceState({}, '', `blog-single.html?slug=${post.slug}`);
+        }
 
         // Update page title
         document.title = `${post.title} - Code to Crack`;
@@ -150,7 +177,7 @@ async function loadPost() {
         renderPostContent(post);
 
         // Load comments
-        await loadComments(postId);
+        await loadComments(post.id); // Still use ID for comments
 
         // Update breadcrumb
         updateBreadcrumb(post);
@@ -159,9 +186,9 @@ async function loadPost() {
         await loadSidebarContent();
 
         // Initialize comment form
-        initializeCommentForm(postId);
+        initializeCommentForm(post.id); // Still use ID for comments
 
-        addSinglePostSharing()
+        addSinglePostSharing();
 
         hideLoader();
     } catch (error) {

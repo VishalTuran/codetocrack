@@ -6,6 +6,11 @@
       "permanent": true
     },
     {
+      "source": "/privacy-policy.html",
+      "destination": "/privacy-policy",
+      "permanent": true
+    },
+    {
       "source": "/blog-single.html",
       "has": [
         {

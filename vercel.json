@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/blog-single.html",
       "has": [
         {
@@ -17,5 +22,7 @@
       "source": "/:slug",
       "destination": "/blog-single.html"
     }
-  ]
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }

@@ -11,5 +11,11 @@
       "destination": "/:slug",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/:slug",
+      "destination": "/blog-single.html?slug=:slug"
+    }
   ]
 }

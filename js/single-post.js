@@ -193,6 +193,11 @@ async function loadPost() {
         addSinglePostSharing();
 
         hideLoader();
+
+        if (window.location.search.includes('slug=')) {
+            const pathSlug = window.location.pathname;
+            window.history.replaceState({}, '', pathSlug);
+        }
     } catch (error) {
         console.error('Error loading post:', error);
         showError('Failed to load post content.');

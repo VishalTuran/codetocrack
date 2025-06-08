@@ -12,6 +12,7 @@ function getPostIdentifierFromUrl() {
 }
 
 
+
 // Get post ID from URL
 function getPostIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);

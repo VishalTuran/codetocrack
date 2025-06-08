@@ -1,24 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
       "source": "/test-rewrite",
       "destination": "/index.html"
     },
     {
-      "source": "/([^/]+)/?",
-      "destination": "/category.html?category=$1"
-    },
-    {
-      "source": "/([^/]+)/([^/]+)/?",
-      "destination": "/category.html?category=$1&subcategory=$2"
-    },
-    {
-      "source": "/([^/]+)/([^/]+)/([^/]+)/?",
-      "destination": "/blog-single.html?category=$1&subcategory=$2&slug=$3"
+      "source": "/((?!css|js|images|widgets|fonts|admin|search\\.html|favicon).*)",
+      "destination": "/route-handler.html"
     }
   ],
   "redirects": [
@@ -26,36 +14,6 @@
       "source": "/index.html",
       "destination": "/",
       "permanent": true
-    },
-    {
-      "source": "/category.html",
-      "destination": "/category.html",
-      "permanent": false
-    },
-    {
-      "source": "/blog-single.html",
-      "destination": "/blog-single.html",
-      "permanent": false
     }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
-  ],
-  "trailingSlash": false
+  ]
 }

@@ -22,7 +22,5 @@
       "source": "/:slug",
       "destination": "/blog-single.html"
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }

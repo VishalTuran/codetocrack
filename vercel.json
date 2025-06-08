@@ -5,8 +5,8 @@
       "destination": "/index.html"
     },
     {
-      "source": "/((?!css|js|images|widgets|fonts|admin|search\\.html|favicon).*)",
-      "destination": "/route-handler.html"
+      "source": "/((?!css|js|images|widgets|fonts|admin-|search\\.html|favicon).*)",
+      "destination": "/index.html"
     }
   ],
   "redirects": [
@@ -14,6 +14,17 @@
       "source": "/index.html",
       "destination": "/",
       "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }

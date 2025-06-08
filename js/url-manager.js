@@ -1,16 +1,13 @@
-// url-manager.js - Clean URL Management for Code to Crack
+// Updated url-manager.js - SPA Compatible Clean URL Management
 
 /**
- * URL Manager for generating and parsing clean URLs
+ * URL Manager for generating and parsing clean URLs in SPA mode
  */
 class URLManager {
     static baseUrl = 'https://www.codetocrack.dev';
 
     /**
      * Generate clean category URL
-     * @param {string} categorySlug - Category slug
-     * @param {string} subcategorySlug - Subcategory slug (optional)
-     * @returns {string} Clean URL
      */
     static generateCategoryURL(categorySlug, subcategorySlug = null) {
         if (subcategorySlug) {
@@ -21,8 +18,6 @@ class URLManager {
 
     /**
      * Generate clean post URL
-     * @param {object} post - Post object with slug, category, subcategory
-     * @returns {string} Clean URL
      */
     static generatePostURL(post) {
         if (!post.slug) {
@@ -40,20 +35,36 @@ class URLManager {
 
     /**
      * Generate absolute URL
-     * @param {string} path - Relative path
-     * @returns {string} Absolute URL
      */
     static generateAbsoluteURL(path) {
-        // Remove leading slash if present to avoid double slashes
         const cleanPath = path.startsWith('/') ? path.substring(1) : path;
         return `${this.baseUrl}/${cleanPath}`;
     }
 
     /**
      * Parse current URL to extract route information
-     * @returns {object} Route information
+     * This works with both clean URLs and SPA routing
      */
     static parseCurrentURL() {
+        // Check if we have route data from SPA router
+        if (window.categoryRouteData) {
+            return {
+                type: 'category',
+                category: window.categoryRouteData.category,
+                subcategory: window.categoryRouteData.subcategory
+            };
+        }
+
+        if (window.postRouteData) {
+            return {
+                type: 'post',
+                category: window.postRouteData.category,
+                subcategory: window.postRouteData.subcategory,
+                slug: window.postRouteData.slug
+            };
+        }
+
+        // Fallback to URL parsing
         const path = window.location.pathname;
         const segments = path.split('/').filter(segment => segment !== '');
 
@@ -103,29 +114,41 @@ class URLManager {
     }
 
     /**
-     * Get URL parameters from current location
-     * @returns {URLSearchParams} URL parameters
+     * Get URL parameters - works with both real and virtual params
      */
     static getURLParams() {
+        // Check for internal state first
+        const state = window.history.state;
+        if (state && state.internalUrl) {
+            return new URLSearchParams(state.internalUrl.split('?')[1] || '');
+        }
+
         return new URLSearchParams(window.location.search);
     }
 
     /**
-     * Navigate to clean URL
-     * @param {string} url - Clean URL to navigate to
-     * @param {boolean} replace - Whether to replace current history entry
+     * Navigate to clean URL using SPA router
      */
     static navigate(url, replace = false) {
-        if (replace) {
-            window.history.replaceState({}, '', url);
+        if (window.spaRouter) {
+            if (replace) {
+                window.history.replaceState({}, '', url);
+                window.spaRouter.handleRoute();
+            } else {
+                window.spaRouter.navigateTo(url);
+            }
         } else {
-            window.history.pushState({}, '', url);
+            // Fallback to regular navigation
+            if (replace) {
+                window.location.replace(url);
+            } else {
+                window.location.href = url;
+            }
         }
     }
 
     /**
      * Generate breadcrumb data from current URL
-     * @returns {Array} Breadcrumb items
      */
     static generateBreadcrumbs() {
         const route = this.parseCurrentURL();
@@ -137,13 +160,13 @@ class URLManager {
             case 'category':
                 breadcrumbs.push({
                     name: this.formatCategoryName(route.category),
-                    url: `/${route.category}/`
+                    url: this.generateCategoryURL(route.category)
                 });
 
                 if (route.subcategory) {
                     breadcrumbs.push({
                         name: this.formatCategoryName(route.subcategory),
-                        url: `/${route.category}/${route.subcategory}/`
+                        url: this.generateCategoryURL(route.category, route.subcategory)
                     });
                 }
                 break;
@@ -151,17 +174,16 @@ class URLManager {
             case 'post':
                 breadcrumbs.push({
                     name: this.formatCategoryName(route.category),
-                    url: `/${route.category}/`
+                    url: this.generateCategoryURL(route.category)
                 });
 
                 if (route.subcategory) {
                     breadcrumbs.push({
                         name: this.formatCategoryName(route.subcategory),
-                        url: `/${route.category}/${route.subcategory}/`
+                        url: this.generateCategoryURL(route.category, route.subcategory)
                     });
                 }
 
-                // Post title will be added dynamically when post data is loaded
                 breadcrumbs.push({
                     name: 'Loading...',
                     url: window.location.pathname,
@@ -183,8 +205,6 @@ class URLManager {
 
     /**
      * Format category name for display
-     * @param {string} slug - Category slug
-     * @returns {string} Formatted name
      */
     static formatCategoryName(slug) {
         return slug
@@ -195,7 +215,6 @@ class URLManager {
 
     /**
      * Update page title based on route
-     * @param {string} customTitle - Custom title (optional)
      */
     static updatePageTitle(customTitle = null) {
         const route = this.parseCurrentURL();
@@ -229,7 +248,6 @@ class URLManager {
 
     /**
      * Generate canonical URL for SEO
-     * @returns {string} Canonical URL
      */
     static generateCanonicalURL() {
         const cleanPath = window.location.pathname;
@@ -238,7 +256,6 @@ class URLManager {
 
     /**
      * Update meta tags for SEO
-     * @param {object} options - Meta tag options
      */
     static updateMetaTags(options = {}) {
         const {
@@ -266,7 +283,6 @@ class URLManager {
 
     /**
      * Update canonical URL
-     * @param {string} url - Canonical URL
      */
     static updateCanonicalURL(url) {
         let canonicalLink = document.querySelector('link[rel="canonical"]');
@@ -280,8 +296,6 @@ class URLManager {
 
     /**
      * Update meta tag
-     * @param {string} property - Meta property
-     * @param {string} content - Meta content
      */
     static updateMetaTag(property, content) {
         let metaTag = document.querySelector(`meta[property="${property}"]`);

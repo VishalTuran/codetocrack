@@ -2,17 +2,13 @@ import { PostManager, CommentManager } from './firebase-integration.js';
 import { loadSidebarContent } from './sidebar.js';
 
 function getPostIdentifierFromUrl() {
+    const pathSlug = window.location.pathname.split("/").pop();
     const urlParams = new URLSearchParams(window.location.search);
-    return {
-        slug: urlParams.get('slug'),
-        id: urlParams.get('id') // Keep as fallback
-    };
-}
 
-// Get post ID from URL
-function getPostIdFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
+    return {
+        slug: pathSlug || urlParams.get('slug'),
+        id: urlParams.get('id') // fallback
+    };
 }
 
 function updateSEOMetaTags(post) {

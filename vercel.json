@@ -15,7 +15,7 @@
   "rewrites": [
     {
       "source": "/:slug",
-      "destination": "/blog-single.html?slug=:slug"
+      "destination": "/blog-single.html"
     }
   ]
 }

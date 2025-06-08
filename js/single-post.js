@@ -11,6 +11,12 @@ function getPostIdentifierFromUrl() {
     };
 }
 
+// Get post ID from URL
+function getPostIdFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+}
+
 function updateSEOMetaTags(post) {
     try {
         // Update page title

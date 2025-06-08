@@ -1,7 +1,8 @@
-// renderPosts.js
+// Updated renderPosts.js - Clean URL Integration
 import { PostManager } from './firebase-integration.js';
+import { URLManager } from './url-manager.js';
 
-// Function to render a single post
+// Function to render a single post with clean URLs
 function renderPost(post, type = 'grid') {
     try {
         const postDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toLocaleDateString('en-US', {
@@ -13,8 +14,8 @@ function renderPost(post, type = 'grid') {
         // Format for structured data - ISO format
         const isoDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toISOString();
 
-        // Use slug for URL, fallback to ID if no slug
-        const postUrl = post.slug ? `blog-single.html?slug=${post.slug}` : `blog-single.html?id=${post.id}`;
+        // Use clean URL generation
+        const postUrl = URLManager.generatePostURL(post);
 
         if (type === 'list') {
             return `
@@ -30,19 +31,19 @@ function renderPost(post, type = 'grid') {
             <h6 class="post-title my-0"><a href='${postUrl}'>${post.title}</a></h6>
             <ul class="meta list-inline mt-1 mb-0">
               <li class="list-inline-item"><time datetime="${isoDate}">${postDate}</time></li>
-              ${post.category ? `<li class="list-inline-item"><a href="category.html?category=${post.category}">${post.category}</a></li>` : ''}
+              ${post.category ? `<li class="list-inline-item"><a href="${URLManager.generateCategoryURL(post.category)}">${post.category}</a></li>` : ''}
             </ul>
           </div>
         </article>
       `;
         }
 
-        // Grid type post with slug-based URLs
+        // Grid type post with clean URLs
         return `
       <div class="col-sm-6">
         <article class="post post-grid rounded bordered" data-post-id="${post.id}">
           <div class="thumb top-rounded">
-            ${post.category ? `<a class='category-badge position-absolute' href='category.html?category=${post.category}'>${post.category}</a>` : ''}
+            ${post.category ? `<a class='category-badge position-absolute' href='${URLManager.generateCategoryURL(post.category)}'>${post.category}</a>` : ''}
             <span class="post-format">
               <i class="icon-picture"></i>
             </span>
@@ -57,7 +58,7 @@ function renderPost(post, type = 'grid') {
               <li class="list-inline-item">
                 <a href="#" itemprop="url"><img src="${post.authorImg || 'images/other/author-sm.png'}" class="author" alt="${post.author}" itemprop="image" /><span itemprop="name">${post.author}</span></a>
               </li>
-              ${post.category ? `<li class="list-inline-item"><a href="category.html?category=${post.category}" class="category">${post.category}</a></li>` : ''}
+              ${post.category ? `<li class="list-inline-item"><a href="${URLManager.generateCategoryURL(post.category)}" class="category">${post.category}</a></li>` : ''}
               <li class="list-inline-item"><time datetime="${isoDate}">${postDate}</time></li>
             </ul>
             <h5 class="post-title mb-3 mt-3"><a href='${postUrl}'>${post.title}</a></h5>
@@ -88,8 +89,7 @@ function renderPost(post, type = 'grid') {
     }
 }
 
-// Function to render featured post
-// Modify the renderFeaturedPost function in renderPosts.js
+// Function to render featured post with clean URLs
 function renderFeaturedPost(post) {
     try {
         const postDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toLocaleDateString('en-US', {
@@ -112,13 +112,13 @@ function renderFeaturedPost(post) {
             title = title.substring(0, titleMaxLength) + '...';
         }
 
-        // Use slug for URL, fallback to ID if no slug
-        const postUrl = post.slug ? `blog-single.html?slug=${post.slug}` : `blog-single.html?id=${post.id}`;
+        // Use clean URL generation
+        const postUrl = URLManager.generatePostURL(post);
 
         return `
       <article class="featured-post-card">
         <div class="thumb rounded">
-          ${post.category ? `<a class="category-badge position-absolute" href='category.html?category=${post.category}'>${post.category}</a>` : ''}
+          ${post.category ? `<a class="category-badge position-absolute" href='${URLManager.generateCategoryURL(post.category)}'>${post.category}</a>` : ''}
           <a href='${postUrl}'>
             <div class="inner" style="background-image: url('${post.featuredImage}');"></div>
           </a>
@@ -146,16 +146,14 @@ function renderFeaturedPost(post) {
     }
 }
 
-// Load and render posts
-// In renderPosts.js, ensure loadPosts properly handles pagination
-// In renderPosts.js, ensure loadPosts properly handles pagination
+// Load and render posts (unchanged)
 async function loadPosts(options = {}) {
     try {
         showLoader();
-        console.log('Loading posts with options:', options); // Add this for debugging
+        console.log('Loading posts with options:', options);
 
         const posts = await PostManager.getPosts(options);
-        console.log(`Loaded ${posts.length} posts for page ${options.page || 1}`); // Add this for debugging
+        console.log(`Loaded ${posts.length} posts for page ${options.page || 1}`);
 
         // Clear existing content
         const mainContainer = document.getElementById('main-posts-container');
@@ -181,7 +179,7 @@ async function loadPosts(options = {}) {
     }
 }
 
-// Load featured posts
+// Load featured posts (unchanged)
 async function loadFeaturedPosts() {
     try {
         // Get the container
@@ -198,11 +196,11 @@ async function loadFeaturedPosts() {
 
             // Get featured posts from PostManager
             const featuredPosts = await PostManager.getPosts({
-                featured: true,  // Only get featured posts
+                featured: true,
                 status: 'published',
                 orderField: 'publishDate',
                 orderDirection: 'desc',
-                pageSize: 8  // Increased to show more posts in the carousel
+                pageSize: 8
             });
 
             console.log('Featured posts:', featuredPosts);
@@ -250,7 +248,7 @@ async function loadFeaturedPosts() {
     }
 }
 
-// Load popular posts for sidebar
+// Load popular posts for sidebar (unchanged)
 async function loadPopularPosts() {
     try {
         const popularPosts = await PostManager.getPopularPosts(5);
@@ -275,7 +273,7 @@ async function loadPopularPosts() {
     }
 }
 
-// Utility functions
+// Utility functions (unchanged)
 function showLoader() {
     const loader = document.createElement('div');
     loader.id = 'loading-indicator';

@@ -1,7 +1,8 @@
-// navbar.js
+// Updated navbar.js - Clean URL Integration
 import { CategoryManager } from './firebase-integration.js';
+import { URLManager } from './url-manager.js';
 
-// Function to render navbar
+// Function to render navbar with clean URLs
 async function renderNavbar() {
     try {
         const categories = await CategoryManager.getCategories();
@@ -22,12 +23,12 @@ async function renderNavbar() {
     }
 }
 
-// Render header navbar
+// Render header navbar with clean URLs
 function renderHeaderNavbar(categories) {
     const navbarNav = document.querySelector('.navbar-nav');
 
     if (navbarNav) {
-        let navHtml = `<li class="nav-item active"><a class='nav-link' href='index.html'>Home</a></li>`;
+        let navHtml = `<li class="nav-item active"><a class='nav-link' href='/'>Home</a></li>`;
 
         if (!categories || categories.length === 0) {
             navbarNav.innerHTML = navHtml;
@@ -39,12 +40,12 @@ function renderHeaderNavbar(categories) {
                 // Category with subcategories
                 navHtml += `
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="category.html?category=${category.slug}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="${URLManager.generateCategoryURL(category.slug)}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               ${category.name}
             </a>
             <ul class="dropdown-menu">
               ${category.subcategories.map(subcategory => `
-                <li><a class="dropdown-item" href="category.html?category=${category.slug}&subcategory=${subcategory.slug}">${subcategory.name}</a></li>
+                <li><a class="dropdown-item" href="${URLManager.generateCategoryURL(category.slug, subcategory.slug)}">${subcategory.name}</a></li>
               `).join('')}
             </ul>
           </li>
@@ -53,7 +54,7 @@ function renderHeaderNavbar(categories) {
                 // Category without subcategories
                 navHtml += `
           <li class="nav-item">
-            <a class='nav-link' href='category.html?category=${category.slug}'>${category.name}</a>
+            <a class='nav-link' href='${URLManager.generateCategoryURL(category.slug)}'>${category.name}</a>
           </li>
         `;
             }
@@ -63,12 +64,12 @@ function renderHeaderNavbar(categories) {
     }
 }
 
-// Render canvas menu
+// Render canvas menu with clean URLs
 function renderCanvasMenu(categories) {
     const verticalMenu = document.querySelector('.vertical-menu');
 
     if (verticalMenu) {
-        let menuHtml = `<li class="active"><a href='index.html'>Home</a></li>`;
+        let menuHtml = `<li class="active"><a href='/'>Home</a></li>`;
 
         if (!categories || categories.length === 0) {
             verticalMenu.innerHTML = menuHtml;
@@ -80,11 +81,11 @@ function renderCanvasMenu(categories) {
                 // Category with subcategories
                 menuHtml += `
           <li>
-            <a href='category.html?category=${category.slug}'>${category.name}</a>
+            <a href='${URLManager.generateCategoryURL(category.slug)}'>${category.name}</a>
             <span class="switch"><i class="icon-arrow-down-circle"></i></span>
             <ul class="submenu">
               ${category.subcategories.map(subcategory => `
-                <li><a href='category.html?category=${category.slug}&subcategory=${subcategory.slug}'>${subcategory.name}</a></li>
+                <li><a href='${URLManager.generateCategoryURL(category.slug, subcategory.slug)}'>${subcategory.name}</a></li>
               `).join('')}
             </ul>
           </li>
@@ -92,7 +93,7 @@ function renderCanvasMenu(categories) {
             } else {
                 // Category without subcategories
                 menuHtml += `
-          <li><a href='category.html?category=${category.slug}'>${category.name}</a></li>
+          <li><a href='${URLManager.generateCategoryURL(category.slug)}'>${category.name}</a></li>
         `;
             }
         });
@@ -101,36 +102,36 @@ function renderCanvasMenu(categories) {
     }
 }
 
-// Static navbar fallback
+// Static navbar fallback with clean URLs
 function renderStaticNavbar() {
     const navbarNav = document.querySelector('.navbar-nav');
     const verticalMenu = document.querySelector('.vertical-menu');
 
     const staticNavHtml = `
-    <li class="nav-item active"><a class='nav-link' href='index.html'>Home</a></li>
+    <li class="nav-item active"><a class='nav-link' href='/'>Home</a></li>
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="category.html?category=dsa" data-bs-toggle="dropdown" aria-expanded="false">
+      <a class="nav-link dropdown-toggle" href="/dsa/" data-bs-toggle="dropdown" aria-expanded="false">
         DSA
       </a>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="category.html?category=dsa&subcategory=array">Array</a></li>
-        <li><a class="dropdown-item" href="category.html?category=dsa&subcategory=linked-list">Linked List</a></li>
-        <li><a class="dropdown-item" href="category.html?category=dsa&subcategory=tree">Tree</a></li>
-        <li><a class="dropdown-item" href="category.html?category=dsa&subcategory=graph">Graph</a></li>
+        <li><a class="dropdown-item" href="/dsa/array/">Array</a></li>
+        <li><a class="dropdown-item" href="/dsa/linked-list/">Linked List</a></li>
+        <li><a class="dropdown-item" href="/dsa/tree/">Tree</a></li>
+        <li><a class="dropdown-item" href="/dsa/graph/">Graph</a></li>
       </ul>
     </li>
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="category.html?category=web-development" data-bs-toggle="dropdown" aria-expanded="false">
+      <a class="nav-link dropdown-toggle" href="/web-development/" data-bs-toggle="dropdown" aria-expanded="false">
         Web Development
       </a>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="category.html?category=web-development&subcategory=frontend">Frontend</a></li>
-        <li><a class="dropdown-item" href="category.html?category=web-development&subcategory=backend">Backend</a></li>
-        <li><a class="dropdown-item" href="category.html?category=web-development&subcategory=full-stack">Full Stack</a></li>
+        <li><a class="dropdown-item" href="/web-development/frontend/">Frontend</a></li>
+        <li><a class="dropdown-item" href="/web-development/backend/">Backend</a></li>
+        <li><a class="dropdown-item" href="/web-development/full-stack/">Full Stack</a></li>
       </ul>
     </li>
-    <li class="nav-item"><a class='nav-link' href='category.html?category=programming'>Programming</a></li>
-    <li class="nav-item"><a class='nav-link' href='category.html?category=tutorials'>Tutorials</a></li>
+    <li class="nav-item"><a class='nav-link' href='/programming/'>Programming</a></li>
+    <li class="nav-item"><a class='nav-link' href='/tutorials/'>Tutorials</a></li>
   `;
 
     if (navbarNav) {
@@ -139,28 +140,28 @@ function renderStaticNavbar() {
 
     if (verticalMenu) {
         verticalMenu.innerHTML = `
-      <li class="active"><a href='index.html'>Home</a></li>
+      <li class="active"><a href='/'>Home</a></li>
       <li>
-        <a href='category.html?category=dsa'>DSA</a>
+        <a href='/dsa/'>DSA</a>
         <span class="switch"><i class="icon-arrow-down-circle"></i></span>
         <ul class="submenu">
-          <li><a href='category.html?category=dsa&subcategory=array'>Array</a></li>
-          <li><a href='category.html?category=dsa&subcategory=linked-list'>Linked List</a></li>
-          <li><a href='category.html?category=dsa&subcategory=tree'>Tree</a></li>
-          <li><a href='category.html?category=dsa&subcategory=graph'>Graph</a></li>
+          <li><a href='/dsa/array/'>Array</a></li>
+          <li><a href='/dsa/linked-list/'>Linked List</a></li>
+          <li><a href='/dsa/tree/'>Tree</a></li>
+          <li><a href='/dsa/graph/'>Graph</a></li>
         </ul>
       </li>
       <li>
-        <a href='category.html?category=web-development'>Web Development</a>
+        <a href='/web-development/'>Web Development</a>
         <span class="switch"><i class="icon-arrow-down-circle"></i></span>
         <ul class="submenu">
-          <li><a href='category.html?category=web-development&subcategory=frontend'>Frontend</a></li>
-          <li><a href='category.html?category=web-development&subcategory=backend'>Backend</a></li>
-          <li><a href='category.html?category=web-development&subcategory=full-stack'>Full Stack</a></li>
+          <li><a href='/web-development/frontend/'>Frontend</a></li>
+          <li><a href='/web-development/backend/'>Backend</a></li>
+          <li><a href='/web-development/full-stack/'>Full Stack</a></li>
         </ul>
       </li>
-      <li><a href='category.html?category=programming'>Programming</a></li>
-      <li><a href='category.html?category=tutorials'>Tutorials</a></li>
+      <li><a href='/programming/'>Programming</a></li>
+      <li><a href='/tutorials/'>Tutorials</a></li>
     `;
     }
 }
@@ -215,36 +216,53 @@ function initializeNavbar() {
     highlightActiveMenuItem();
 }
 
-// Highlight active menu item
+// Highlight active menu item with clean URL support
 function highlightActiveMenuItem() {
-    const currentPath = window.location.pathname;
+    const route = URLManager.parseCurrentURL();
     const menuItems = document.querySelectorAll('.navbar-nav .nav-item, .vertical-menu li');
 
     menuItems.forEach(item => {
         const link = item.querySelector('a');
         if (link) {
-            const linkPath = link.getAttribute('href');
+            const linkHref = link.getAttribute('href');
 
             // Remove active class from all items
             item.classList.remove('active');
 
-            // Add active class to current item
-            if (currentPath.includes(linkPath) ||
-                (currentPath === '/' && linkPath === 'index.html') ||
-                (currentPath === '/index.html' && linkPath === 'index.html')) {
-                item.classList.add('active');
-            }
+            // Check for exact route matches
+            switch (route.type) {
+                case 'home':
+                    if (linkHref === '/' || linkHref === 'index.html') {
+                        item.classList.add('active');
+                    }
+                    break;
 
-            // Check for category/subcategory matches
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentCategory = urlParams.get('category');
+                case 'category':
+                    // Check for category match
+                    const categoryUrl = URLManager.generateCategoryURL(route.category);
+                    const subcategoryUrl = route.subcategory ?
+                        URLManager.generateCategoryURL(route.category, route.subcategory) : null;
 
-            if (link.href.includes('category=') && currentCategory) {
-                const hrefParams = new URL(link.href, window.location.origin).searchParams;
-                const linkCategory = hrefParams.get('category');
-                if (linkCategory === currentCategory) {
-                    item.classList.add('active');
-                }
+                    if (linkHref === categoryUrl || linkHref === subcategoryUrl) {
+                        item.classList.add('active');
+
+                        // Also mark parent category as active if this is a subcategory
+                        if (route.subcategory && linkHref === categoryUrl) {
+                            item.classList.add('active');
+                        }
+                    }
+                    break;
+
+                case 'post':
+                    // Mark the category and subcategory as active for posts
+                    const postCategoryUrl = URLManager.generateCategoryURL(route.category);
+                    const postSubcategoryUrl = route.subcategory ?
+                        URLManager.generateCategoryURL(route.category, route.subcategory) : null;
+
+                    if (linkHref === postCategoryUrl || linkHref === postSubcategoryUrl) {
+                        item.classList.add('active');
+                    }
+                    break;
             }
         }
     });

@@ -1,13 +1,21 @@
-// Update category.js to show posts from subcategories
-
+// Updated category.js - Clean URL Integration
 import { PostManager, CategoryManager } from './firebase-integration.js';
 import { loadSidebarContent } from './sidebar.js';
+import { URLManager } from './url-manager.js';
 
-// Get category and subcategory from URL
+// Get category and subcategory from clean URL
 function getCategoryFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
+    const route = URLManager.parseCurrentURL();
 
-    // Get category parameter
+    if (route.type === 'category') {
+        return {
+            category: route.category,
+            subcategory: route.subcategory || null
+        };
+    }
+
+    // Fallback to query parameters for backward compatibility
+    const urlParams = URLManager.getURLParams();
     return {
         category: urlParams.get('category'),
         subcategory: urlParams.get('subcategory')
@@ -22,13 +30,18 @@ async function loadCategoryContent() {
 
         if (!category) {
             console.warn('No category specified in URL');
+            // Redirect to homepage if no category
+            window.location.href = '/';
             return;
         }
 
-        // Update page title and header
+        // Update page title and meta tags
+        await updateCategoryPageMeta(category, subcategory);
+
+        // Update page header
         await updateCategoryHeader(category, subcategory);
 
-        // Load posts for this category (including posts from subcategories if no subcategory is specified)
+        // Load posts for this category
         await loadCategoryPosts(category, subcategory);
 
         // Load sidebar content
@@ -36,6 +49,49 @@ async function loadCategoryContent() {
 
     } catch (error) {
         console.error('Error loading category content:', error);
+        showErrorPage();
+    }
+}
+
+// Update page meta tags and title
+async function updateCategoryPageMeta(categorySlug, subcategorySlug) {
+    try {
+        const categories = await CategoryManager.getCategories();
+        const currentCategory = categories.find(cat =>
+            cat.slug && cat.slug.toLowerCase() === categorySlug.toLowerCase()
+        );
+
+        if (currentCategory) {
+            let pageTitle = currentCategory.name;
+            let description = currentCategory.description || `Articles about ${currentCategory.name}`;
+
+            if (subcategorySlug && currentCategory.subcategories) {
+                const subcategory = currentCategory.subcategories.find(sub =>
+                    sub.slug && sub.slug.toLowerCase() === subcategorySlug.toLowerCase()
+                );
+
+                if (subcategory) {
+                    pageTitle = `${subcategory.name} - ${currentCategory.name}`;
+                    description = subcategory.description ||
+                        `${subcategory.name} articles in ${currentCategory.name}`;
+                }
+            }
+
+            // Update page title
+            URLManager.updatePageTitle(pageTitle);
+
+            // Update meta tags
+            URLManager.updateMetaTags({
+                title: `${pageTitle} - Code to Crack`,
+                description: description,
+                url: URLManager.generateCanonicalURL()
+            });
+
+            // Update breadcrumbs
+            updateBreadcrumbs(currentCategory, subcategorySlug);
+        }
+    } catch (error) {
+        console.error('Error updating category page meta:', error);
     }
 }
 
@@ -58,8 +114,6 @@ async function updateCategoryHeader(categorySlug, subcategorySlug) {
         if (currentCategory) {
             console.log('Found category:', currentCategory.name);
 
-            // Update page title
-            let pageTitle = currentCategory.name;
             let headerTitle = currentCategory.name;
             let description = currentCategory.description || '';
 
@@ -70,16 +124,10 @@ async function updateCategoryHeader(categorySlug, subcategorySlug) {
 
                 if (subcategory) {
                     console.log('Found subcategory:', subcategory.name);
-                    pageTitle = `${currentCategory.name} - ${subcategory.name}`;
-                    headerTitle = `${subcategory.name}`;
-                    // If subcategory has a description, use it
-                    if (subcategory.description) {
-                        description = subcategory.description;
-                    }
+                    headerTitle = subcategory.name;
+                    description = subcategory.description || description;
                 }
             }
-
-            document.title = `${pageTitle} - Code to Crack`;
 
             // Update page header
             const pageHeader = document.querySelector('.page-header h1');
@@ -94,13 +142,46 @@ async function updateCategoryHeader(categorySlug, subcategorySlug) {
             }
         } else {
             console.warn(`Category not found: ${categorySlug}`);
+            showErrorPage();
         }
     } catch (error) {
         console.error('Error updating category header:', error);
     }
 }
 
-// Load category posts, including subcategory posts if appropriate
+// Update breadcrumbs
+function updateBreadcrumbs(category, subcategorySlug) {
+    const breadcrumbs = URLManager.generateBreadcrumbs();
+
+    // Update breadcrumb names with actual category data
+    breadcrumbs.forEach(crumb => {
+        if (crumb.url === `/${category.slug}/`) {
+            crumb.name = category.name;
+        }
+
+        if (subcategorySlug && category.subcategories) {
+            const subcategory = category.subcategories.find(sub =>
+                sub.slug === subcategorySlug
+            );
+            if (subcategory && crumb.url === `/${category.slug}/${subcategorySlug}/`) {
+                crumb.name = subcategory.name;
+            }
+        }
+    });
+
+    // Update breadcrumb HTML if breadcrumb container exists
+    const breadcrumbContainer = document.querySelector('.breadcrumb, .breadcrumbs');
+    if (breadcrumbContainer) {
+        breadcrumbContainer.innerHTML = breadcrumbs.map((crumb, index) => {
+            if (index === breadcrumbs.length - 1) {
+                return `<span class="current">${crumb.name}</span>`;
+            }
+            return `<a href="${crumb.url}">${crumb.name}</a>`;
+        }).join(' / ');
+    }
+}
+
+// Load category posts with clean URL support
 async function loadCategoryPosts(categorySlug, subcategorySlug, page = 1) {
     try {
         console.log(`Loading posts for category: ${categorySlug}, subcategory: ${subcategorySlug || 'all'}`);
@@ -123,7 +204,7 @@ async function loadCategoryPosts(categorySlug, subcategorySlug, page = 1) {
             // If subcategory is specified, only show posts from that subcategory
             const subcategoryPosts = await PostManager.getPosts({
                 page: page,
-                pageSize: 50, // Increase page size to get more posts
+                pageSize: 50,
                 category: categorySlug,
                 subcategory: subcategorySlug,
                 status: 'published',
@@ -203,19 +284,7 @@ async function loadCategoryPosts(categorySlug, subcategorySlug, page = 1) {
         }
     } catch (error) {
         console.error('Error loading category posts:', error);
-
-        // Show error message
-        const postsContainer = document.getElementById('main-posts-container');
-        if (postsContainer) {
-            postsContainer.innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-danger">
-                        <h4 class="alert-heading">Error loading posts</h4>
-                        <p>There was a problem loading posts. Please try again later.</p>
-                    </div>
-                </div>
-            `;
-        }
+        showErrorMessage('There was a problem loading posts. Please try again later.');
     }
 }
 
@@ -232,7 +301,7 @@ function renderCategoryPosts(posts, postsPerPage = 10, currentPage = 1) {
             <div class="col-12">
                 <div class="alert alert-info">
                     <h4 class="alert-heading">No posts found</h4>
-                    <p>There are no posts in this category yet.</p>
+                    <p>There are no posts in this category yet. <a href="/">Browse other categories</a></p>
                 </div>
             </div>
         `;
@@ -253,18 +322,11 @@ function renderCategoryPosts(posts, postsPerPage = 10, currentPage = 1) {
         });
     }).catch(error => {
         console.error('Error importing renderPosts module:', error);
-        postsContainer.innerHTML = `
-            <div class="col-12">
-                <div class="alert alert-danger">
-                    <h4 class="alert-heading">Error rendering posts</h4>
-                    <p>There was a problem displaying the posts. Please try again later.</p>
-                </div>
-            </div>
-        `;
+        showErrorMessage('There was a problem displaying the posts. Please try again later.');
     });
 }
 
-// Initialize pagination
+// Initialize pagination with clean URL support
 function initializePagination(allPosts, currentPage = 1, postsPerPage = 10) {
     const paginationElement = document.querySelector('.pagination');
     if (!paginationElement) return;
@@ -319,6 +381,42 @@ function initializePagination(allPosts, currentPage = 1, postsPerPage = 10) {
             behavior: 'smooth'
         });
     });
+}
+
+// Show error page
+function showErrorPage() {
+    const postsContainer = document.getElementById('main-posts-container');
+    if (postsContainer) {
+        postsContainer.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <h4 class="alert-heading">Category not found</h4>
+                    <p>The requested category could not be found. <a href="/">Return to homepage</a></p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Update page header
+    const pageHeader = document.querySelector('.page-header h1');
+    if (pageHeader) {
+        pageHeader.textContent = 'Category Not Found';
+    }
+}
+
+// Show error message
+function showErrorMessage(message) {
+    const postsContainer = document.getElementById('main-posts-container');
+    if (postsContainer) {
+        postsContainer.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">Error loading posts</h4>
+                    <p>${message}</p>
+                </div>
+            </div>
+        `;
+    }
 }
 
 // Initialize when DOM is loaded

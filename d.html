@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Diagnostic Tool - Code to Crack</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .test-item {
+      margin: 15px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 3px;
+      color: white;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .success { background: #28a745; }
+    .error { background: #dc3545; }
+    .pending { background: #ffc107; color: black; }
+    .info { background: #17a2b8; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .results {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🔧 URL Diagnostic Tool</h1>
+  <p>This tool will help diagnose issues with your clean URL implementation.</p>
+
+  <div class="test-section">
+    <h2>1. Server Configuration Tests</h2>
+    <button onclick="testRewriteEngine()">Test Rewrite Engine</button>
+    <button onclick="testStaticFiles()">Test Static Files</button>
+    <button onclick="testOldURLs()">Test Old URLs</button>
+
+    <div id="server-results" class="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. Clean URL Tests</h2>
+    <button onclick="testCleanURLs()">Test Clean URLs</button>
+    <button onclick="testCategoryPages()">Test Category Pages</button>
+    <button onclick="testPostURLs()">Test Post URLs</button>
+
+    <div id="url-results" class="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. JavaScript Tests</h2>
+    <button onclick="testJavaScript()">Test URL Manager</button>
+    <button onclick="testNavigation()">Test Navigation</button>
+
+    <div id="js-results" class="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. Current Environment Info</h2>
+    <button onclick="showEnvironmentInfo()">Show Environment Info</button>
+
+    <div id="env-results" class="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>5. Recommendations</h2>
+    <div id="recommendations" class="results">
+      <p>Run the tests above to get specific recommendations for fixing your 404 errors.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Test if rewrite engine is working
+  async function testRewriteEngine() {
+    const results = document.getElementById('server-results');
+    results.innerHTML = '<div class="test-item">Testing rewrite engine... <span class="status pending">TESTING</span></div>';
+
+    try {
+      // Test a simple rewrite rule
+      const response = await fetch('/test-rewrite');
+      if (response.ok) {
+        results.innerHTML += '<div class="test-item">✅ Rewrite engine is working <span class="status success">WORKING</span></div>';
+      } else {
+        results.innerHTML += '<div class="test-item">❌ Rewrite engine test failed <span class="status error">FAILED</span></div>';
+      }
+    } catch (error) {
+      results.innerHTML += '<div class="test-item">❌ Cannot test rewrite engine <span class="status error">ERROR</span></div>';
+    }
+  }
+
+  // Test static file access
+  async function testStaticFiles() {
+    const results = document.getElementById('server-results');
+    const staticFiles = [
+      '/css/bootstrap.min.css',
+      '/js/jquery.min.js',
+      '/images/favicon.png'
+    ];
+
+    for (const file of staticFiles) {
+      try {
+        const response = await fetch(file, { method: 'HEAD' });
+        if (response.ok) {
+          results.innerHTML += `<div class="test-item">✅ Static file accessible: ${file} <span class="status success">OK</span></div>`;
+        } else {
+          results.innerHTML += `<div class="test-item">❌ Static file not accessible: ${file} <span class="status error">404</span></div>`;
+        }
+      } catch (error) {
+        results.innerHTML += `<div class="test-item">❌ Error accessing: ${file} <span class="status error">ERROR</span></div>`;
+      }
+    }
+  }
+
+  // Test old URL format
+  async function testOldURLs() {
+    const results = document.getElementById('server-results');
+    const oldUrls = [
+      '/index.html',
+      '/category.html?category=programming',
+      '/blog-single.html?slug=test-post'
+    ];
+
+    for (const url of oldUrls) {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        results.innerHTML += `<div class="test-item">Old URL ${url}: Status ${response.status} <span class="status ${response.ok ? 'success' : 'error'}">${response.status}</span></div>`;
+      } catch (error) {
+        results.innerHTML += `<div class="test-item">❌ Error testing old URL: ${url} <span class="status error">ERROR</span></div>`;
+      }
+    }
+  }
+
+  // Test clean URLs
+  async function testCleanURLs() {
+    const results = document.getElementById('url-results');
+    const cleanUrls = [
+      '/',
+      '/programming/',
+      '/data-structure/',
+      '/web-development/'
+    ];
+
+    results.innerHTML = '<div class="test-item">Testing clean URLs... <span class="status pending">TESTING</span></div>';
+
+    for (const url of cleanUrls) {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        const status = response.ok ? 'success' : 'error';
+        const statusText = response.ok ? 'OK' : response.status;
+        results.innerHTML += `<div class="test-item">Clean URL ${url}: <span class="status ${status}">${statusText}</span></div>`;
+      } catch (error) {
+        results.innerHTML += `<div class="test-item">❌ Error testing clean URL: ${url} <span class="status error">ERROR</span></div>`;
+      }
+    }
+  }
+
+  // Test category pages
+  async function testCategoryPages() {
+    const results = document.getElementById('url-results');
+    const categoryUrls = [
+      '/programming/tutorials/',
+      '/data-structure/array/',
+      '/web-development/frontend/'
+    ];
+
+    for (const url of categoryUrls) {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        const status = response.ok ? 'success' : 'error';
+        const statusText = response.ok ? 'OK' : response.status;
+        results.innerHTML += `<div class="test-item">Category URL ${url}: <span class="status ${status}">${statusText}</span></div>`;
+      } catch (error) {
+        results.innerHTML += `<div class="test-item">❌ Error testing category URL: ${url} <span class="status error">ERROR</span></div>`;
+      }
+    }
+  }
+
+  // Test post URLs
+  async function testPostURLs() {
+    const results = document.getElementById('url-results');
+    const postUrls = [
+      '/programming/tutorials/test-post/',
+      '/data-structure/array/array-basics/',
+      '/web-development/frontend/html-basics/'
+    ];
+
+    for (const url of postUrls) {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        const status = response.ok ? 'success' : 'error';
+        const statusText = response.ok ? 'OK' : response.status;
+        results.innerHTML += `<div class="test-item">Post URL ${url}: <span class="status ${status}">${statusText}</span></div>`;
+      } catch (error) {
+        results.innerHTML += `<div class="test-item">❌ Error testing post URL: ${url} <span class="status error">ERROR</span></div>`;
+      }
+    }
+  }
+
+  // Test JavaScript functionality
+  function testJavaScript() {
+    const results = document.getElementById('js-results');
+    let output = '';
+
+    // Test if URLManager is loaded
+    if (typeof URLManager !== 'undefined') {
+      output += '<div class="test-item">✅ URLManager class loaded <span class="status success">LOADED</span></div>';
+
+      // Test URL generation
+      try {
+        const testUrl = URLManager.generateCategoryURL('programming');
+        output += `<div class="test-item">✅ URL generation works: ${testUrl} <span class="status success">OK</span></div>`;
+      } catch (error) {
+        output += `<div class="test-item">❌ URL generation error: ${error.message} <span class="status error">ERROR</span></div>`;
+      }
+    } else {
+      output += '<div class="test-item">❌ URLManager class not loaded <span class="status error">MISSING</span></div>';
+    }
+
+    // Test current URL parsing
+    try {
+      const currentPath = window.location.pathname;
+      output += `<div class="test-item">Current path: ${currentPath} <span class="status info">INFO</span></div>`;
+    } catch (error) {
+      output += `<div class="test-item">❌ Cannot read current path <span class="status error">ERROR</span></div>`;
+    }
+
+    results.innerHTML = output;
+  }
+
+  // Test navigation functionality
+  function testNavigation() {
+    const results = document.getElementById('js-results');
+    let output = '';
+
+    // Check navigation links
+    const navLinks = document.querySelectorAll('nav a, .navbar a');
+    output += `<div class="test-item">Found ${navLinks.length} navigation links <span class="status info">INFO</span></div>`;
+
+    // Check for old-style links
+    let oldLinks = 0;
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && (href.includes('index.html') || href.includes('.html?'))) {
+        oldLinks++;
+      }
+    });
+
+    if (oldLinks > 0) {
+      output += `<div class="test-item">⚠️ Found ${oldLinks} old-style links <span class="status error">NEEDS UPDATE</span></div>`;
+    } else {
+      output += `<div class="test-item">✅ All navigation links use clean URLs <span class="status success">OK</span></div>`;
+    }
+
+    results.innerHTML += output;
+  }
+
+  // Show environment information
+  function showEnvironmentInfo() {
+    const results = document.getElementById('env-results');
+    const info = {
+      'Current URL': window.location.href,
+      'Protocol': window.location.protocol,
+      'Host': window.location.host,
+      'Pathname': window.location.pathname,
+      'Search': window.location.search || '(none)',
+      'User Agent': navigator.userAgent,
+      'Referrer': document.referrer || '(none)'
+    };
+
+    let output = '<pre>';
+    for (const [key, value] of Object.entries(info)) {
+      output += `${key}: ${value}\n`;
+    }
+    output += '</pre>';
+
+    results.innerHTML = output;
+  }
+
+  // Generate recommendations based on test results
+  function generateRecommendations() {
+    const recommendations = document.getElementById('recommendations');
+    let recs = '<h3>Recommendations:</h3>';
+
+    // Check if we have any error status elements
+    const errors = document.querySelectorAll('.status.error');
+    const successes = document.querySelectorAll('.status.success');
+
+    if (errors.length === 0) {
+      recs += '<div class="test-item">✅ Everything looks good! Your clean URLs should be working.</div>';
+    } else {
+      recs += '<div class="test-item">❌ Issues found. Here are the recommended fixes:</div>';
+
+      // Specific recommendations based on common issues
+      recs += `
+                <div class="test-item">
+                    <strong>1. Check .htaccess file:</strong>
+                    <ul>
+                        <li>Make sure .htaccess exists in your root directory</li>
+                        <li>Verify mod_rewrite is enabled on your server</li>
+                        <li>Check file permissions (should be 644)</li>
+                    </ul>
+                </div>
+                <div class="test-item">
+                    <strong>2. Contact your hosting provider if:</strong>
+                    <ul>
+                        <li>Static files work but clean URLs don't</li>
+                        <li>You get 500 Internal Server Error</li>
+                        <li>Rewrite engine test fails</li>
+                    </ul>
+                </div>
+                <div class="test-item">
+                    <strong>3. Temporary workaround:</strong>
+                    <ul>
+                        <li>Revert to old URL format in navigation</li>
+                        <li>Use JavaScript-based routing as fallback</li>
+                        <li>Implement clean URLs gradually</li>
+                    </ul>
+                </div>
+                `;
+    }
+
+    recommendations.innerHTML = recs;
+  }
+
+  // Auto-run basic tests on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('URL Diagnostic Tool loaded');
+    showEnvironmentInfo();
+  });
+</script>
+</body>
+</html>

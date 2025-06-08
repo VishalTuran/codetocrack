@@ -54,7 +54,7 @@ async function loadSearchResults() {
     const query = getSearchQuery();
 
     if (!query) {
-        window.location.href = 'index.html';
+        window.location.href = '/';
         return;
     }
 

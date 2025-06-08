@@ -1,24 +1,39 @@
+// Updated single-post.js - Clean URL Integration
 import { PostManager, CommentManager } from './firebase-integration.js';
 import { loadSidebarContent } from './sidebar.js';
+import { URLManager } from './url-manager.js';
 
+// Get post identifier from clean URL
 function getPostIdentifierFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
+    const route = URLManager.parseCurrentURL();
+
+    if (route.type === 'post') {
+        return {
+            slug: route.slug,
+            category: route.category,
+            subcategory: route.subcategory
+        };
+    }
+
+    // Fallback to query parameters for backward compatibility
+    const urlParams = URLManager.getURLParams();
     return {
         slug: urlParams.get('slug'),
-        id: urlParams.get('id') // Keep as fallback
+        id: urlParams.get('id'),
+        category: urlParams.get('category'),
+        subcategory: urlParams.get('subcategory')
     };
 }
 
-// Get post ID from URL
-function getPostIdFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
-}
-
+// Update SEO meta tags with clean URLs
 function updateSEOMetaTags(post) {
     try {
+        // Generate clean URL for this post
+        const postUrl = URLManager.generatePostURL(post);
+        const absoluteUrl = URLManager.generateAbsoluteURL(postUrl);
+
         // Update page title
-        document.title = `${post.title} - Code to Crack`;
+        URLManager.updatePageTitle(post.title);
 
         // Update meta description
         const metaDescription = document.querySelector('meta[name="description"]');
@@ -26,52 +41,24 @@ function updateSEOMetaTags(post) {
             metaDescription.content = post.excerpt;
         }
 
-        // Update canonical URL
-        let canonicalLink = document.querySelector('link[rel="canonical"]');
-        if (!canonicalLink) {
-            canonicalLink = document.createElement('link');
-            canonicalLink.rel = 'canonical';
-            document.head.appendChild(canonicalLink);
-        }
-        canonicalLink.href = `https://codetocrack.com/blog-single.html?id=${post.id}`;
+        // Update meta tags with clean URL
+        URLManager.updateMetaTags({
+            title: `${post.title} - Code to Crack`,
+            description: post.excerpt,
+            url: absoluteUrl,
+            image: post.featuredImage
+        });
 
-        // Update Open Graph meta tags
-        updateMetaTag('og:title', post.title);
-        updateMetaTag('og:description', post.excerpt);
-        updateMetaTag('og:url', `https://codetocrack.com/blog-single.html?id=${post.id}`);
-        if (post.featuredImage) {
-            updateMetaTag('og:image', post.featuredImage);
-        }
-
-        // Update Twitter Card meta tags
-        updateMetaTag('twitter:title', post.title);
-        updateMetaTag('twitter:description', post.excerpt);
-        updateMetaTag('twitter:url', `https://codetocrack.com/blog-single.html?id=${post.id}`);
-        if (post.featuredImage) {
-            updateMetaTag('twitter:image', post.featuredImage);
-        }
-
-        // Update Schema.org structured data
-        updateStructuredData(post);
+        // Update structured data
+        updateStructuredData(post, absoluteUrl);
 
     } catch (error) {
         console.error('Error updating SEO meta tags:', error);
     }
 }
 
-// Helper function to update meta tags
-function updateMetaTag(property, content) {
-    let metaTag = document.querySelector(`meta[property="${property}"]`);
-    if (!metaTag) {
-        metaTag = document.createElement('meta');
-        metaTag.setAttribute('property', property);
-        document.head.appendChild(metaTag);
-    }
-    metaTag.setAttribute('content', content);
-}
-
-// Update structured data JSON-LD
-function updateStructuredData(post) {
+// Update structured data JSON-LD with clean URL
+function updateStructuredData(post, postUrl) {
     const structuredDataScript = document.getElementById('post-structured-data');
     if (!structuredDataScript) return;
 
@@ -87,6 +74,8 @@ function updateStructuredData(post) {
     // Update with post data
     structuredData.headline = post.title;
     structuredData.description = post.excerpt;
+    structuredData.url = postUrl;
+
     if (post.featuredImage) {
         structuredData.image = post.featuredImage;
     }
@@ -118,20 +107,19 @@ function updateStructuredData(post) {
         structuredData.dateModified = structuredData.datePublished;
     }
 
-    // Update mainEntityOfPage id
-    structuredData.mainEntityOfPage["@id"] = `https://codetocrack.com/blog-single.html?id=${post.id}`;
+    // Update mainEntityOfPage id with clean URL
+    structuredData.mainEntityOfPage["@id"] = postUrl;
 
     // Update the script content
     structuredDataScript.textContent = JSON.stringify(structuredData, null, 2);
 }
 
-
 // Load and render post content
 async function loadPost() {
-    const { slug, id } = getPostIdentifierFromUrl();
+    const { slug, id, category, subcategory } = getPostIdentifierFromUrl();
 
     if (!slug && !id) {
-        window.location.href = 'index.html';
+        window.location.href = '/';
         return;
     }
 
@@ -147,27 +135,28 @@ async function loadPost() {
             post = await PostManager.getPost(id);
         }
 
-        // Update SEO meta tags
+        // Verify category/subcategory match if provided in URL
+        if (category && post.category !== category) {
+            console.warn('Category mismatch in URL, redirecting to correct URL');
+            const correctUrl = URLManager.generatePostURL(post);
+            window.location.replace(correctUrl);
+            return;
+        }
+
+        if (subcategory && post.subcategory !== subcategory) {
+            console.warn('Subcategory mismatch in URL, redirecting to correct URL');
+            const correctUrl = URLManager.generatePostURL(post);
+            window.location.replace(correctUrl);
+            return;
+        }
+
+        // Update SEO meta tags with clean URL
         updateSEOMetaTags(post);
 
-        // Update canonical URL to use slug
-        const canonicalLink = document.querySelector('link[rel="canonical"]');
-        if (canonicalLink && post.slug) {
-            canonicalLink.href = `https://codetocrack.com/blog-single.html?slug=${post.slug}`;
-        }
-
-        // If we loaded by ID but have a slug, redirect to slug URL
+        // If we loaded by ID but have a slug, redirect to clean URL
         if (id && !slug && post.slug) {
-            window.history.replaceState({}, '', `blog-single.html?slug=${post.slug}`);
-        }
-
-        // Update page title
-        document.title = `${post.title} - Code to Crack`;
-
-        // Update meta description
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-            metaDescription.content = post.excerpt;
+            const cleanUrl = URLManager.generatePostURL(post);
+            window.history.replaceState({}, '', cleanUrl);
         }
 
         // Render post header
@@ -188,16 +177,17 @@ async function loadPost() {
         // Initialize comment form
         initializeCommentForm(post.id); // Still use ID for comments
 
+        // Add social sharing
         addSinglePostSharing();
 
         hideLoader();
     } catch (error) {
         console.error('Error loading post:', error);
-        showError('Failed to load post content.');
+        showError('Failed to load post content. The post may not exist or may have been moved.');
     }
 }
 
-// Render post header
+// Render post header with clean URLs
 function renderPostHeader(post) {
     const headerElement = document.querySelector('.post-header');
     const postDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toLocaleDateString('en-US', {
@@ -218,10 +208,10 @@ function renderPostHeader(post) {
         if (authorImage) authorImage.src = post.authorImg || 'images/other/author-sm.png';
         if (authorName) authorName.textContent = post.author;
 
-        // Update category link with proper URL
+        // Update category link with clean URL
         if (categoryElement && post.category) {
             categoryElement.textContent = post.category;
-            categoryElement.href = `category.html?category=${post.category}`;
+            categoryElement.href = URLManager.generateCategoryURL(post.category);
         }
 
         if (dateElement) dateElement.textContent = postDate;
@@ -253,25 +243,44 @@ function renderPostContent(post) {
     renderTags(post.tags);
 }
 
-// Render tags
+// Render tags with search links
 function renderTags(tags) {
     const tagsContainer = document.querySelector('.tags');
 
     if (tagsContainer && tags && tags.length > 0) {
         tagsContainer.innerHTML = tags.map(tag =>
-            `<a href="search.html?q=${encodeURIComponent(tag)}" class="tag">#${tag}</a>`
+            `<a href="/search.html?q=${encodeURIComponent(tag)}" class="tag">#${tag}</a>`
         ).join(' ');
     }
 }
 
-// Update breadcrumb with correct category link
+// Update breadcrumb with clean URLs
 function updateBreadcrumb(post) {
+    const breadcrumbs = URLManager.generateBreadcrumbs();
+
+    // Update the last breadcrumb with the post title
+    if (breadcrumbs.length > 0) {
+        breadcrumbs[breadcrumbs.length - 1].name = post.title;
+    }
+
+    // Update breadcrumb HTML if breadcrumb container exists
+    const breadcrumbContainer = document.querySelector('.breadcrumb, .breadcrumbs');
+    if (breadcrumbContainer) {
+        breadcrumbContainer.innerHTML = breadcrumbs.map((crumb, index) => {
+            if (index === breadcrumbs.length - 1) {
+                return `<span class="current">${crumb.name}</span>`;
+            }
+            return `<a href="${crumb.url}">${crumb.name}</a>`;
+        }).join(' / ');
+    }
+
+    // Also update individual breadcrumb elements if they exist
     const categoryLink = document.getElementById('category-breadcrumb');
     const postTitle = document.getElementById('post-title-breadcrumb');
 
     if (categoryLink && post.category) {
         categoryLink.textContent = post.category;
-        categoryLink.href = `category.html?category=${post.category}`;
+        categoryLink.href = URLManager.generateCategoryURL(post.category);
     }
 
     if (postTitle && post.title) {
@@ -279,7 +288,7 @@ function updateBreadcrumb(post) {
     }
 }
 
-// Load and render comments
+// Load and render comments (unchanged)
 async function loadComments(postId) {
     try {
         const comments = await CommentManager.getCommentsByPost(postId);
@@ -334,7 +343,7 @@ async function loadComments(postId) {
     }
 }
 
-// Add reply functionality
+// Add reply functionality (unchanged)
 function addReplyFunctionality() {
     const replyButtons = document.querySelectorAll('.reply-btn');
 
@@ -399,7 +408,7 @@ function addReplyFunctionality() {
     });
 }
 
-// Initialize comment form
+// Initialize comment form (unchanged)
 function initializeCommentForm(postId) {
     const commentForm = document.getElementById('comment-form');
 
@@ -457,12 +466,7 @@ function initializeCommentForm(postId) {
     }
 }
 
-// Updated single-post.js snippet to add social sharing safely
-
-/**
- * Add social sharing to the single post page
- * This function should be called in your loadPost function
- */
+// Add social sharing to the single post page with clean URLs
 function addSinglePostSharing() {
     try {
         // Find or create the social share container in post bottom
@@ -472,7 +476,7 @@ function addSinglePostSharing() {
         // Check if sharing is already added
         if (postBottom.querySelector('.social-share')) return;
 
-        // Get current post URL and title
+        // Get current post URL (clean URL) and title
         const postUrl = window.location.href;
         const postTitle = document.querySelector('.post-header .title')?.textContent || document.title;
 
@@ -551,12 +555,26 @@ function hideLoader() {
 function showError(message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'alert alert-danger my-4';
-    errorDiv.textContent = message;
+    errorDiv.innerHTML = `
+        <h4 class="alert-heading">Post Not Found</h4>
+        <p>${message}</p>
+        <hr>
+        <a href="/" class="btn btn-primary">Return to Homepage</a>
+    `;
 
     const postContent = document.querySelector('.post-content');
     if (postContent) {
         postContent.innerHTML = '';
         postContent.appendChild(errorDiv);
+    }
+
+    // Update page title
+    document.title = 'Post Not Found - Code to Crack';
+
+    // Update page header
+    const pageHeader = document.querySelector('.post-header .title');
+    if (pageHeader) {
+        pageHeader.textContent = 'Post Not Found';
     }
 }
 
@@ -586,6 +604,6 @@ document.addEventListener('DOMContentLoaded', loadPost);
 // Export functions
 export {
     loadPost,
-    getPostIdFromUrl,
+    getPostIdentifierFromUrl,
     addSinglePostSharing
 };

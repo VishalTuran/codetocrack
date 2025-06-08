@@ -1,0 +1,21 @@
+{
+  "redirects": [
+    {
+      "source": "/blog-single.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug"
+        }
+      ],
+      "destination": "/:slug",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/:slug",
+      "destination": "/blog-single.html"
+    }
+  ]
+}

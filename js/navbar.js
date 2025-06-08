@@ -1,7 +1,5 @@
-// navbar.js
 import { CategoryManager } from './firebase-integration.js';
 
-// Function to render navbar
 async function renderNavbar() {
     try {
         const categories = await CategoryManager.getCategories();

@@ -2,12 +2,15 @@ import { PostManager, CommentManager } from './firebase-integration.js';
 import { loadSidebarContent } from './sidebar.js';
 
 function getPostIdentifierFromUrl() {
+    const pathname = window.location.pathname;
+    const slugFromPath = pathname.substring(1); // removes leading "/"
     const urlParams = new URLSearchParams(window.location.search);
     return {
-        slug: urlParams.get('slug'),
-        id: urlParams.get('id') // Keep as fallback
+        slug: slugFromPath || urlParams.get('slug'),
+        id: urlParams.get('id')
     };
 }
+
 
 // Get post ID from URL
 function getPostIdFromUrl() {

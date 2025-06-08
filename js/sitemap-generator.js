@@ -101,7 +101,7 @@ function generateSitemapXML(posts, categories) {
 
             // Use slug URL if available, fallback to ID
             const postUrl = post.slug ?
-                `${SITE_URL}/blog-single.html?slug=${post.slug}` :
+                `${SITE_URL}/${post.slug}` :
                 `${SITE_URL}/blog-single.html?id=${post.id}`;
 
             sitemap += `

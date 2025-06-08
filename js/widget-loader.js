@@ -58,65 +58,53 @@ class EnhancedWidgetLoader {
      * @param {string} targetSelector - CSS selector for the target element
      * @returns {Promise} Promise that resolves when widget is loaded
      */
-    loadWidget(widgetName, targetSelector) {
-        const widgetFile = `${this.config.widgetPath}${widgetName}-widget.html`;
-        this.totalWidgets++;
+    loadCommonWidgets() {
+        const promises = [];
 
-        if (this.config.debug) {
-            console.log(`Loading widget: ${widgetName} into ${targetSelector}`);
+        // Header widget
+        if (document.querySelector('header')) {
+            promises.push(this.loadWidget('header', 'header'));
         }
 
-        return fetch(widgetFile)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Failed to load widget: ${widgetFile}`);
-                }
-                return response.text();
-            })
-            .then(html => {
-                const targetElement = document.querySelector(targetSelector);
-                if (targetElement) {
-                    targetElement.innerHTML = html;
-                    this.widgetsLoaded++;
+        // Footer widget
+        if (document.querySelector('footer')) {
+            promises.push(this.loadWidget('footer', 'footer'));
+        }
 
-                    // Register the widget as loaded
-                    this.widgetRegistry.set(widgetName, {
-                        loaded: true,
-                        target: targetSelector,
-                        timestamp: new Date()
-                    });
+        // Cookie consent banner
+        if (document.querySelector('.cookie-consent-placeholder')) {
+            promises.push(this.loadWidget('cookie-consent', '.cookie-consent-placeholder'));
+        }
 
-                    if (this.config.debug) {
-                        console.log(`Widget loaded (${this.widgetsLoaded}/${this.totalWidgets}): ${widgetName}`);
-                    }
+        // Sidebar widgets
+        if (document.querySelector('.sidebar')) {
+            // Check if sidebar has designated placeholders
+            const sidebar = document.querySelector('.sidebar');
 
-                    // Dispatch event for this specific widget
-                    document.dispatchEvent(new CustomEvent('widget-loaded', {
-                        detail: {
-                            widget: widgetName,
-                            target: targetSelector
-                        }
-                    }));
+            if (sidebar.querySelector('.popular-posts-placeholder')) {
+                promises.push(this.loadWidget('popular-posts', '.popular-posts-placeholder'));
+            }
 
-                    // If all widgets are loaded, dispatch a complete event
-                    if (this.widgetsLoaded === this.totalWidgets) {
-                        document.dispatchEvent(new CustomEvent('widgets-complete'));
+            if (sidebar.querySelector('.newsletter-placeholder')) {
+                promises.push(this.loadWidget('newsletter', '.newsletter-placeholder'));
+            }
 
-                        if (this.config.debug) {
-                            console.log('All widgets loaded successfully!');
-                        }
-                    }
+            if (sidebar.querySelector('.topics-placeholder')) {
+                promises.push(this.loadWidget('topics', '.topics-placeholder'));
+            }
+        }
 
-                    return { widgetName, targetSelector, success: true };
-                } else {
-                    console.error(`Target element not found: ${targetSelector}`);
-                    return { widgetName, targetSelector, success: false, error: 'Target not found' };
-                }
-            })
-            .catch(error => {
-                console.error(`Error loading widget ${widgetName}:`, error);
-                return { widgetName, targetSelector, success: false, error: error.message };
-            });
+        // Search popup
+        if (document.querySelector('.search-popup-placeholder')) {
+            promises.push(this.loadWidget('search-popup', '.search-popup-placeholder'));
+        }
+
+        // Canvas menu
+        if (document.querySelector('.canvas-menu-placeholder')) {
+            promises.push(this.loadWidget('canvas-menu', '.canvas-menu-placeholder'));
+        }
+
+        return Promise.all(promises);
     }
 
     /**

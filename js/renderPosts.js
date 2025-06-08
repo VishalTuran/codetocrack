@@ -14,7 +14,7 @@ function renderPost(post, type = 'grid') {
         const isoDate = new Date(post.publishDate.seconds * 1000 || post.publishDate).toISOString();
 
         // Use slug for URL, fallback to ID if no slug
-        const postUrl = post.slug ? `blog-single.html?slug=${post.slug}` : `blog-single.html?id=${post.id}`;
+        const postUrl = post.slug ? `` : `blog-single.html?id=${post.id}`;
 
         if (type === 'list') {
             return `
@@ -113,7 +113,7 @@ function renderFeaturedPost(post) {
         }
 
         // Use slug for URL, fallback to ID if no slug
-        const postUrl = post.slug ? `blog-single.html?slug=${post.slug}` : `blog-single.html?id=${post.id}`;
+        const postUrl = post.slug ? `` : `blog-single.html?id=${post.id}`;
 
         return `
       <article class="featured-post-card">

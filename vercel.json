@@ -6,6 +6,11 @@
       "permanent": true
     },
     {
+      "source": "/search.html",
+      "destination": "/search",
+      "permanent": true
+    },
+    {
       "source": "/blog-single.html",
       "has": [
         {

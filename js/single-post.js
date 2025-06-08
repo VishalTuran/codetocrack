@@ -2,14 +2,15 @@ import { PostManager, CommentManager } from './firebase-integration.js';
 import { loadSidebarContent } from './sidebar.js';
 
 function getPostIdentifierFromUrl() {
-    const pathSlug = window.location.pathname.split("/").pop();
+    const pathname = window.location.pathname;
+    const slugFromPath = pathname.substring(1); // removes leading "/"
     const urlParams = new URLSearchParams(window.location.search);
-
     return {
-        slug: pathSlug || urlParams.get('slug'),
-        id: urlParams.get('id') // fallback
+        slug: slugFromPath || urlParams.get('slug'),
+        id: urlParams.get('id')
     };
 }
+
 
 // Get post ID from URL
 function getPostIdFromUrl() {
@@ -193,11 +194,6 @@ async function loadPost() {
         addSinglePostSharing();
 
         hideLoader();
-
-        if (window.location.search.includes('slug=')) {
-            const pathSlug = window.location.pathname;
-            window.history.replaceState({}, '', pathSlug);
-        }
     } catch (error) {
         console.error('Error loading post:', error);
         showError('Failed to load post content.');

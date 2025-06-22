@@ -67,10 +67,16 @@ class PostManager {
 
     while (true) {
       // Check if slug exists
-      const existingPost = await this.getPostBySlug(slug);
+      try {
+        const existingPost = await this.getPostBySlug(slug);
 
-      if (!existingPost || (excludeId && existingPost.id === excludeId)) {
-        return slug;
+
+        if (!existingPost || (excludeId && existingPost.id === excludeId)) {
+          return slug;
+        }
+      }catch (error) {
+        console.error(error);
+        break;
       }
 
       // If slug exists, append number

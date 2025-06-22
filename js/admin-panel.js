@@ -328,6 +328,7 @@ async function loadPosts() {
 
             // Generate the view URL - use slug if available, fallback to ID
             const viewUrl = post.slug ?
+
                 `blog-single.html?slug=${post.slug}` :
                 `blog-single.html?id=${post.id}`;
 

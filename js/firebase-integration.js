@@ -76,7 +76,7 @@ class PostManager {
         }
       }catch (error) {
         console.error(error);
-        break;
+        return slug;
       }
 
       // If slug exists, append number
@@ -150,6 +150,8 @@ class PostManager {
         status: postData.status || 'published',
         readTime: this.calculateReadTime(postData.content)
       };
+
+      console.log("Creating post:", postData);
 
       const docRef = await addDoc(collection(db, collections.posts), postToSave);
 

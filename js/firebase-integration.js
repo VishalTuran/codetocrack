@@ -411,7 +411,7 @@ class PostManager {
         tags = [],
         orderField = 'publishDate',
         orderDirection = 'desc',
-        status = null,
+        status = 'published',
         featured = null,
         search = null
       } = options;

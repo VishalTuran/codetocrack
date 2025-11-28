@@ -3865,4 +3865,24 @@ img.author {
   color: white;
 }
 
+pre code {
+  display: block;
+  background-color: #f5f5f5;
+  color: #333;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+  white-space: pre-wrap; /* Wrap long lines */
+  word-wrap: break-word;
+}
+
+/* Optional: Add some margin to separate the block from other content */
+pre {
+  margin: 20px 0;
+}
+
 
